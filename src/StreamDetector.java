@@ -52,31 +52,55 @@ public class StreamDetector {
 		String input = "";
 		
 		while(condition){
-		//Começamos lendo.
+		//Resetamos atributos
+		this.command = 99;
+		this.sizes[0] = 0;
+		this.sizes[1] = 0;
+		this.argument1 = null;
+		this.argument2 = null;
+			
+		//Leitura
 		input = sc.nextLine();
 		
 		//Dividimos em um array de strings para analisarmos os argumentos separados
 		String temp = input;
 		int spaces = temp.length() - temp.replaceAll(" ", "").length();
 		String arguments[] = input.split(" ",spaces+1);
+		
+		//Setamos número de argumentos
 		this.numberOfArguments = arguments.length;
 		
-		//Se entrar no if o commando é reconhecido
-		if(checkAndSetCommand(arguments)){
-			//Se não precisar pegar arquivo entra aqui
-			if(this.command < 9 || this.command == 12){
+		//Para checarmos se o commando parece ok
+		//Se tiver problema seta a variável errorType da classe
+		checkAndSetCommand(arguments);
+		
+		//Se entrar no if é porque não houve erros. Se houver entra no else.
+		if(errorType <= 0 && errorType >= 3){
+			//Entra no if se não envolver arquivo
+			//if(this.command < 9 || this.command == 12){
 				
-						
-			}
-			//Se precisar de arquivo entra neste else
-			else{
+				//Seta variaveis da classe
+				sizes[0] = (byte) arguments[1].getBytes().length;
+				this.argument1 = new byte[arguments[1].getBytes().length];
 				
-			}
+				if(this.numberOfArguments > 2){
+					sizes[1] = (byte) arguments[2].getBytes().length;
+					this.argument2 = new byte[arguments[2].getBytes().length];
+				}
+				
+				//Quebramos o while
+				condition = false;
+				
+			//}
+			//Se o comando envolver arquivo entramos neste else
+			//else{
+				
+			//}
 			
-		//Fim do if, o else só imprime erro pois o comando não é reconhecido.
 		}
+		//Se tiver erro entra aqui
 		else{
-		System.out.println("Erro: comando nao reconhecido. Tente novamente.\n");
+		printError();
 		}
 		
 		//Fim do while
@@ -89,8 +113,7 @@ public class StreamDetector {
 	
 	
 	//Checa o input e seta o atributo command se estiver correto
-	private Boolean checkAndSetCommand(String[] arguments){
-		Boolean allright = true;
+	private void checkAndSetCommand(String[] arguments){
 		String temp = arguments[0];
 		
 		if(temp.equals("open")){
@@ -100,47 +123,81 @@ public class StreamDetector {
 			else this.command = 0;
 		}
 		else if(temp.equals("ls")){
+			if(this.numberOfArguments != 1){
+				this.errorType = 1;
+			}
 			this.command = 1;
 		}
 		else if(temp.equals("cd")){
+			if(this.numberOfArguments != 2){
+				this.errorType = 1;
+			}
 			this.command = 2;
 		}
 		else if(temp.equals("mv")){
+			if(this.numberOfArguments != 3){
+				this.errorType = 1;
+			}
 			this.command = 3;
 		}
 		else if(temp.equals("mkdir")){
+			if(this.numberOfArguments != 2){
+				this.errorType = 1;
+			}
 			this.command = 4;
 		}
 		else if(temp.equals("rmdir")){
+			if(this.numberOfArguments != 2){
+				this.errorType = 1;
+			}
 			this.command = 5;
 		}
 		else if(temp.equals("rm")){
+			if(this.numberOfArguments != 2){
+				this.errorType = 1;
+			}
 			this.command = 6;
 		}
 		else if(temp.equals("cp")){
+			if(this.numberOfArguments != 3){
+				this.errorType = 1;
+			}
 			this.command = 7;
 		}
 		else if(temp.equals("close")){
+			if(this.numberOfArguments != 1){
+				this.errorType = 1;
+			}
 			this.command = 8;
 		}
 		else if(temp.equals("cat")){
+			if(this.numberOfArguments != 2){
+				this.errorType = 1;
+			}
 			this.command = 9;
 		}
 		else if(temp.equals("upload")){
+			if(this.numberOfArguments != 2){
+				this.errorType = 1;
+			}
 			this.command = 10;
 		}
 		else if(temp.equals("download")){
+			if(this.numberOfArguments != 2){
+				this.errorType = 1;
+			}
 			this.command = 11;
 		}
 		else if(temp.equals("lcd")){
+			if(this.numberOfArguments != 2){
+				this.errorType = 1;
+			}
 			this.command = 12;
 		}
 		else{
 		    this.errorType = 0;
-			allright = false;
 		}
-		
-		return allright;
+	
 	}
 	
 	//Imprime erro baseado no errorType e então reseta ele para -1
