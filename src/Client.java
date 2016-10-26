@@ -1,4 +1,3 @@
+import java.rmi.Remote;
 
-public interface Client {
-
-}
+public interface Client extends Remote {}

@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.rmi.RemoteException;
 
 /**
  * @author Luiz Nunes Junior, Thiago Anders Imhoff 
@@ -21,26 +22,18 @@ import java.net.Socket;
  */
 
 public class ClientImpl {
-
-	static String host = "192.168.1.30"; /* Máquina do Thiago */
+	static String host = "192.168.1.30";
 	static int port = 1515;
-	static int timeout = 60000; /* 60s */
+	static int timeout = 60000; // 60s
+	static Socket socket = null;
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
-		Socket socket = null;
 		try {
-			System.out.println("Connect with " + host);
-			socket = new Socket(InetAddress.getByName(host), port);
-			socket.setSoTimeout(timeout);
-
-		} catch (Exception e1) {
-			System.out
-					.println("Error while connecting to " + host + ":" + port);
-			System.out.println(e1.getMessage());
+			connect();
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
 		}
+		
 		if (socket != null) {
 			try {
 
@@ -98,10 +91,21 @@ public class ClientImpl {
 
 				
 
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (Exception e1) {
+				e1.printStackTrace();
 			}
 		}
 	}
 
+	public static void connect() throws RemoteException {
+		try {
+			System.out.println("Connect with " + host);
+			socket = new Socket(InetAddress.getByName(host), port);
+			socket.setSoTimeout(timeout);
+		} catch (Exception e1) {
+			System.out.println( 
+					"Error while connecting to " + host + ":" + port );
+			System.out.println(e1.getMessage());
+		}
+	}
 }
