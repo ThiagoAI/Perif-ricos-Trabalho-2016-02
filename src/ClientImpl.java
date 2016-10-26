@@ -20,7 +20,7 @@ import java.net.Socket;
  * (Traffic Only) 6º Field: File. [File]
  */
 
-public class Client {
+public class ClientImpl {
 
 	static String host = "192.168.1.30"; /* Máquina do Thiago */
 	static int port = 1515;
