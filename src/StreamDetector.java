@@ -1,7 +1,5 @@
 import java.util.Scanner;
-import java.util.Arrays;
 import java.io.File;
-import java.lang.Byte;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -46,6 +44,7 @@ public class StreamDetector {
 	 */
 	private int errorType;
 	
+	//Construtor
 	public StreamDetector(){
 		numberOfArguments = 0;
 		command = 99;
@@ -274,6 +273,14 @@ public class StreamDetector {
 	
 	byte[] getArgument2(){
 		return this.argument2;
+	}
+	
+	byte[] getFilesize(){
+		return this.filesize;
+	}
+	
+	byte[] getFile(){
+		return this.file;
 	}
 	
 }
