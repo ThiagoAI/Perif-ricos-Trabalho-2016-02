@@ -9,10 +9,6 @@ import java.rmi.server.UnicastRemoteObject;
 /**
  * 
  * @author Junior
- *
- * Atualmente, a estrutura do Stub é destinada ao cliente. Copiar o que está comentado para
- * ClientImpl.java.
- * E criar a interface Client.java.
  */
 
 public class ServerImpl implements Server {
