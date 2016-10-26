@@ -15,19 +15,6 @@ import java.rmi.server.UnicastRemoteObject;
  * E criar a interface Client.java.
  */
 
-/*public static void main(String[] args) {
-	try {
-		ClientImpl serv = new ClientImpl();
-		Client stub = (Client) UnicastRemoteObject.exportObject(serv, 2000);
-		Registry registry = LocateRegistry.getRegistry();
-		registry.bind("client", stub);
-		System.err.println("> client has logged in");
-	}
-	catch (Exception e) {
-	    System.err.println("@warning: client_exception: " + e.toString());  e.printStackTrace();
-	}      
-}*/
-
 public class ServerImpl implements Server {
 	static String host;
 	static int port = 1515;
