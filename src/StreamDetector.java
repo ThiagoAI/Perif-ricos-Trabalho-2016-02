@@ -1,6 +1,9 @@
 import java.util.Scanner;
 import java.util.Arrays;
+import java.io.File;
 import java.lang.Byte;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /* 
  * open = 0
@@ -23,11 +26,15 @@ public class StreamDetector {
 	 * sizes = array de tamanho 2 com o tamanho dos dois argumentos
 	 * se só houver 1 o tamanho do segundo será 0
 	 * argument1 e 2 = argumentos.
+	 * filesize = tamanho da file passada como argumento
+	 * file = arquivo lido em formato de byte array
 	 */
 	private byte command;
 	private byte[] sizes;
 	private byte[] argument1;
 	private byte[] argument2;
+	private byte[] filesize;
+	private byte[] file;
 	
 	//Auxiliar para funções, número de argumentos lidos na linha.
 	private int numberOfArguments;
@@ -50,20 +57,24 @@ public class StreamDetector {
 		Boolean condition = true;
 		Scanner sc = new Scanner(System.in);
 		String input = "";
+		String temp = "";
 		
 		while(condition){
 		//Resetamos atributos
+		this.numberOfArguments = 0;
 		this.command = 99;
 		this.sizes[0] = 0;
 		this.sizes[1] = 0;
 		this.argument1 = null;
 		this.argument2 = null;
+		this.filesize = null;
+		this.file = null;
 			
 		//Leitura
 		input = sc.nextLine();
 		
 		//Dividimos em um array de strings para analisarmos os argumentos separados
-		String temp = input;
+		temp = input;
 		int spaces = temp.length() - temp.replaceAll(" ", "").length();
 		String arguments[] = input.split(" ",spaces+1);
 		
@@ -76,26 +87,45 @@ public class StreamDetector {
 		
 		//Se entrar no if é porque não houve erros. Se houver entra no else.
 		if(errorType <= 0 && errorType >= 3){
-			//Entra no if se não envolver arquivo
-			//if(this.command < 9 || this.command == 12){
 				
 				//Seta variaveis da classe
-				sizes[0] = (byte) arguments[1].getBytes().length;
-				this.argument1 = new byte[arguments[1].getBytes().length];
+				this.argument1 = arguments[1].getBytes();
+				sizes[0] = (byte) argument1.length;
 				
 				if(this.numberOfArguments > 2){
-					sizes[1] = (byte) arguments[2].getBytes().length;
-					this.argument2 = new byte[arguments[2].getBytes().length];
+					this.argument2 = arguments[2].getBytes();
+					sizes[1] = (byte) argument2.length;
 				}
 				
-				//Quebramos o while
+				//Quebramos o while. Se houver problema
+				//durante a leitura de arquivo, volta a ser true depois
 				condition = false;
 				
-			//}
-			//Se o comando envolver arquivo entramos neste else
-			//else{
+				//Se for arquivo ainda temos de ver se ele existe
+				//e pegar o tamanho
+				if(this.command > 8 && this.command != 12){
+					//Tentamos ler o arquivo
 				
-			//}
+					try{
+						//Abrimos o arquivo
+						File file = new File(arguments[1]);
+						
+						//Pegamos o tamanho do arquivo
+						long filesize = file.length();
+						temp = String.valueOf(filesize);
+						this.filesize = temp.getBytes();
+						
+						//Convertemos arquivo em bytes
+						Path path = file.toPath();
+						this.file = Files.readAllBytes(path);
+					}
+					//Se o arquivo não existir ou algum erro similar
+					catch(Exception e){
+						this.errorType = 2;
+						condition = true;
+					}
+					
+				}
 			
 		}
 		//Se tiver erro entra aqui
@@ -213,7 +243,10 @@ public class StreamDetector {
 			return;
 		}
 		if(this.errorType == 2){
-			System.out.println("Erro " + this.errorType + "detectado ");
+			System.out.println("Erro " + this.errorType + "detectado: "
+					+ "problema ao abrir arquivo, favor verificar se o caminho "
+					+ "para o arquivo fornecido esta correto, ou se o arquivo "
+					+ "existe.");
 			return;
 		}
 		if(this.errorType == 3){
