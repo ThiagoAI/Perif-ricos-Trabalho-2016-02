@@ -54,10 +54,9 @@ public class ServerImpl implements Server {
 	public static void main(String[] args) {
 		try {
 			ServerImpl serv = new ServerImpl();
-			Server stub = (Server) UnicastRemoteObject.exportObject(serv, 2000);
+			Server objref = (Server) UnicastRemoteObject.exportObject(serv, 2000);
 			Registry registry = LocateRegistry.getRegistry();
 			final Client stub = (Client) registry.lookup("client");
-			registry.bind("server", stub);
 			System.err.println("> server is up and running");
 		}
 		catch (Exception e) {
