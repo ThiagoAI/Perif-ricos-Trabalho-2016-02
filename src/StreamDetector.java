@@ -126,6 +126,7 @@ public class StreamDetector {
 					catch(Exception e){
 						this.errorType = 2;
 						condition = true;
+						printError();
 					}
 					
 				}
