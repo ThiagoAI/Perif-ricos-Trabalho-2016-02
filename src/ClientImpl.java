@@ -12,7 +12,7 @@ import java.rmi.RemoteException;
  * @category Trabalho 1 de Interfaces e PerifÃ©ricos
  * @since October 10th, 2016
  * 
- * Protocol AssemblyWeb by Kumamon, Tinhoso, FettBÃ¤r, TotallyNotAllan
+ * Protocol StreamDetector by Kumamon, Tinhoso, FettBÃ¤r, TotallyNotAllan
  * 1Âº Field: Which command? [Byte]
  * 2Âº Field: Argument size. [Byte]
  * 3Âº Field: Argument. [0 ~ 255 bytes]
@@ -27,77 +27,26 @@ public class ClientImpl {
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
 
-	public static void main(String[] args) {
-		try {
-			connect();
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
-		}
+	public static void main(String[] args) throws RemoteException {
+		connect();
 		
-		if (socket != null) {
+		// se socket não for nulo, a conexão está ok
+		if(socket != null) {
 			try {
-
-				DataInputStream in = new DataInputStream(socket
-						.getInputStream());
-				DataOutputStream out = new DataOutputStream(socket
-						.getOutputStream());
+				// responsável pela leitura e análise dos comandos
+				StreamDetector sd = new StreamDetector();
 				
-				BufferedReader bufferedin
-		          = new BufferedReader(new InputStreamReader(in));
-				
-				/*out.writeByte(3);
-				out.writeBytes("RAW\n");*/
-				
-				// use out.write e out.writeBytes para escrever para a impressora
-				// in.readByte() para ler um byte
-				// bufferedin.readLine() para ler uma linha
-				/////// insira o seu cï¿½digo do cliente da impressora aqui
-				/////// consulte rfc1179.txt para o protocolo
-				
-				out.writeByte(2);
-				out.writeBytes("RAW\n");
-				
-				if(in.readByte() == 0) {
-					out.writeByte(2);
-					out.writeBytes("31");
-					out.writeBytes(" cfA001grad39\n");
-				
-					String data = "Hgrad29\nPTinhoso\nfdfa001grad39\n";
-				
-					out.writeBytes(data);
-					out.writeByte(0);
-					
-					if(in.readByte() == 0) {
-						out.writeByte(3);
-						out.writeBytes("8");
-						out.writeBytes(" dfA001grad39\n");
-						
-						String hello = "Hello39\n";
-						
-						out.writeBytes(hello);
-						out.writeByte(0);
-						
-						System.out.println("HELLO");
-						System.out.println(in.readByte());
-					}
-				};
-				
-				System.out.println("IN_READ_BYTE");
-				System.out.println(in.readByte());
-		        
-				in.close();
-				out.close();
-				socket.close();
-
-				
-
+				for(;;) {
+					System.out.println("Be aware! This is a test! Your command: ");
+					sd.detectInput();
+				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}
 	}
 
-	public static void connect() throws RemoteException {
+	private static void connect() throws RemoteException {
 		try {
 			System.out.println("Connect with " + host);
 			socket = new Socket(InetAddress.getByName(host), port);
@@ -109,3 +58,54 @@ public class ClientImpl {
 		}
 	}
 }
+
+/*
+// out.write e out.writeBytes escrevem na impressora
+// in.readByte() para ler um byte
+// bufferedin.readLine() para ler uma linha
+// insira o código do cliente da impressora aqui
+// consulte rfc1179.txt para o protocolo
+
+DataInputStream in = new DataInputStream(socket
+		.getInputStream());
+DataOutputStream out = new DataOutputStream(socket
+		.getOutputStream());
+BufferedReader bufreader
+  = new BufferedReader(new InputStreamReader(System.in))
+
+out.writeByte(3);
+out.writeBytes("RAW\n");
+out.writeByte(2);
+out.writeBytes("RAW\n");
+
+if(in.readByte() == 0) {
+	out.writeByte(2);
+	out.writeBytes("31");
+	out.writeBytes(" cfA001grad39\n");
+
+	String data = "Hgrad29\nPTinhoso\nfdfa001grad39\n";
+
+	out.writeBytes(data);
+	out.writeByte(0);
+	
+	if(in.readByte() == 0) {
+		out.writeByte(3);
+		out.writeBytes("8");
+		out.writeBytes(" dfA001grad39\n");
+		
+		String hello = "Hello39\n";
+		
+		out.writeBytes(hello);
+		out.writeByte(0);
+		
+		System.out.println("HELLO");
+		System.out.println(in.readByte());
+	}
+};
+
+System.out.println("IN_READ_BYTE");
+System.out.println(in.readByte());
+
+in.close();
+out.close();
+socket.close();*/

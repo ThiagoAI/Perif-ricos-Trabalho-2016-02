@@ -8,67 +8,52 @@ import java.rmi.server.UnicastRemoteObject;
 
 /**
  * 
- * @author Junior
+ * @author Luiz Nunes Junior, Thiago Anders Imhoff
  */
 
 public class ServerImpl implements Server {
-	static String host;
 	static int port = 1515;
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
-	static InetAddress inet;
 	
-	public static void main(String[] args) {
-		
-		
-		try {
-			connect();
-		} catch (RemoteException e1) {
-			e1.printStackTrace();
-		}  
+	public static void main(String[] args) throws RemoteException {
+		connect();
 	}
 	
-	public static void connect() throws RemoteException {
-		 try {
-			inet = InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		
+	private static void connect() throws RemoteException {
 		try {
-			System.out.println("Connect with " + host);
-			socket = new Socket(InetAddress.getByName(host), port);
+			socket = new Socket(InetAddress.getLocalHost(), port);
 			socket.setSoTimeout(timeout);
 		} catch (Exception e1) {
-			System.out.println( 
-					"Error while connecting to " + host + ":" + port );
-			System.out.println(e1.getMessage());
+			e1.printStackTrace();
 		}
 	}
 	
-	public void open() {}
+	private void execute() {}
 	
-	public void ls() {}
+	private void open() {}
 	
-	public void cd() {}
+	private void ls() {}
 	
-	public void mv() {}
+	private void cd() {}
 	
-	public void mkdir() {}
+	private void mv() {}
 	
-	public void rmdir() {}
+	private void mkdir() {}
 	
-	public void rm() {}
+	private void rmdir() {}
 	
-	public void cp() {}
+	private void rm() {}
 	
-	public void close() {}
+	private void cp() {}
 	
-	public void cat() {}
+	private void close() {}
 	
-	public void upload() {}
+	private void cat() {}
 	
-	public void download() {}
+	private void upload() {}
 	
-	public void lcd() {}
+	private void download() {}
+	
+	private void lcd() {}
 }
