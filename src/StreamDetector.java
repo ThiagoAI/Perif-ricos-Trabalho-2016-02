@@ -46,9 +46,10 @@ public class StreamDetector {
 	
 	//Construtor
 	public StreamDetector(){
-		numberOfArguments = 0;
-		command = 99;
-		sizes = new byte[2];
+		this.numberOfArguments = 0;
+		this.command = 99;
+		this.sizes = new byte[2];
+		this.errorType = 99;
 	}
 	
 	//Detecta input e o retorna
@@ -62,6 +63,7 @@ public class StreamDetector {
 		//Resetamos atributos
 		this.numberOfArguments = 0;
 		this.command = 99;
+		this.errorType = 99;
 		this.sizes[0] = 0;
 		this.sizes[1] = 0;
 		this.argument1 = null;
@@ -85,17 +87,19 @@ public class StreamDetector {
 		checkAndSetCommand(arguments);
 		
 		//Se entrar no if é porque não houve erros. Se houver entra no else.
-		if(errorType <= 0 && errorType >= 3){
+		if(this.errorType > 3 || this.errorType < 0){
 				
 				//Seta variaveis da classe
+				if(this.numberOfArguments > 1){
 				this.argument1 = arguments[1].getBytes();
 				sizes[0] = (byte) argument1.length;
+				}
 				
 				if(this.numberOfArguments > 2){
 					this.argument2 = arguments[2].getBytes();
 					sizes[1] = (byte) argument2.length;
 				}
-				
+		
 				//Quebramos o while. Se houver problema
 				//durante a leitura de arquivo, volta a ser true depois
 				condition = false;
@@ -134,8 +138,6 @@ public class StreamDetector {
 		
 		//Fim do while
 		}
-		
-		sc.close();
 		
 		return input;
 	}
@@ -237,19 +239,19 @@ public class StreamDetector {
 			return;
 		}
 		if(this.errorType == 1){
-			System.out.println("Erro " + this.errorType + "detectado: "
+			System.out.println("Erro " + this.errorType + " detectado: "
 					+ "o numero de argumentos para este comando nao esta correto.");
 			return;
 		}
 		if(this.errorType == 2){
-			System.out.println("Erro " + this.errorType + "detectado: "
+			System.out.println("Erro " + this.errorType + " detectado: "
 					+ "problema ao abrir arquivo, favor verificar se o caminho "
 					+ "para o arquivo fornecido esta correto, ou se o arquivo "
 					+ "existe.");
 			return;
 		}
 		if(this.errorType == 3){
-			System.out.println("Erro " + this.errorType + "detectado ");
+			System.out.println("Erro " + this.errorType + " detectado ");
 			return;
 		}
 		
