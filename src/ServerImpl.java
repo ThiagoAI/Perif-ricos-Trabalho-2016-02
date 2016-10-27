@@ -17,7 +17,7 @@ public class ServerImpl implements Server {
 	static Socket socket = null;
 	
 	public static void main(String[] args) throws RemoteException {
-		connect();
+		//connect();
 	}
 	
 	private static void connect() throws RemoteException {
@@ -29,7 +29,10 @@ public class ServerImpl implements Server {
 		}
 	}
 	
-	private void execute() {}
+	public void execute(StreamDetector sd) {
+		byte command = sd.getCommand();
+		System.out.println(command);
+	}
 	
 	private void open() {}
 	

@@ -28,17 +28,19 @@ public class ClientImpl {
 	static Socket socket = null;
 
 	public static void main(String[] args) throws RemoteException {
-		connect();
+		//connect();
 		
 		// se socket não for nulo, a conexão está ok
-		if(socket != null) {
+		if(socket == null) {
 			try {
 				// responsável pela leitura e análise dos comandos
 				StreamDetector sd = new StreamDetector();
+				ServerImpl server = new ServerImpl();
 				
 				for(;;) {
-					System.out.println("Be aware! This is a test! Your command: ");
+					System.out.print("Be aware! This is a test! Your command: ");
 					sd.detectInput();
+					server.execute(sd);
 				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
