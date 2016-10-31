@@ -2,6 +2,10 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,6 +19,9 @@ import javax.swing.JTree;
  * @author Luiz Nunes Junior, Thiago Anders Imhoff
  */
 
+//TODO NA TRATANDO CASO SE O USUÁRIO POR O CAMINHO COMPLETO
+// SERÁ QUE É PRA TRATAR?
+
 public class ServerImpl implements Server {
 	static int port = 1515;
 	static int timeout = 60000; // 60s
@@ -24,6 +31,9 @@ public class ServerImpl implements Server {
 	//Por isso temos que guardar em qual diretório DEVERIAMOS estar
 	//Para executarmos todas as operações com caminho absoluto
 	String currentPath;
+	
+	//Um erro na classe pode ser uma boa
+	//String error;
 	
 	public static void main(String[] args) throws RemoteException {
 		connect();
@@ -74,18 +84,41 @@ public class ServerImpl implements Server {
 		
 	}
 	
+	//Tenta mover de source para target
+	//Assumo que ela dá os dois absolute path...
+	//Se não der tem que acrescentar currentPath
 	private void mv(String source,String target){
 		try{
-			
+			Path src = Paths.get(source);
+			Path tar = Paths.get(target);
+			Files.move(src,tar,StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch(Exception e){
 			String error = "There was an issue trying to...";
 		}
 	}
 	
-	private void mkdir() {}
+	//Criamos diretório
+	private void mkdir(String directory) {
+		File dir = new File(currentPath + "/" + directory);
+		if(dir.mkdir()){
+			//Nao fazer nada, teve sucesso
+		}
+		else{
+			String error = "Falha ao tentar criar diretorio...";
+		}
+	}
 	
-	private void rmdir() {}
+	//Destruimos o diretório
+	private void rmdir(String directory){
+		File dir = new File(currentPath + "/" + directory);
+		if(dir.delete()){
+			//Nao fazer nada, teve sucesso
+		}
+		else{
+			String error = "Falha ao tentar destruir diretorio...";
+		}
+	}
 	
 	private void rm() {}
 	
