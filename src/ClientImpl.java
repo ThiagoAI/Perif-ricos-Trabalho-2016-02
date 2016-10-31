@@ -28,12 +28,12 @@ public class ClientImpl {
 	static Socket socket = null;
 
 	public static void main(String[] args) throws RemoteException {
-		connect();
+		//connect();
 		
-		// se socket não for nulo, a conexão está ok
-		if(socket != null) {
+		// se socket nï¿½o for nulo, a conexï¿½o estï¿½ ok
+		//if(socket != null) {
 			try {
-				// responsável pela leitura e análise dos comandos
+				// responsï¿½vel pela leitura e anï¿½lise dos comandos
 				StreamDetector sd = new StreamDetector();
 				
 				for(;;) {
@@ -44,7 +44,7 @@ public class ClientImpl {
 				e1.printStackTrace();
 			}
 		}
-	}
+	//}
 
 	private static void connect() throws RemoteException {
 		try {
@@ -63,7 +63,7 @@ public class ClientImpl {
 // out.write e out.writeBytes escrevem na impressora
 // in.readByte() para ler um byte
 // bufferedin.readLine() para ler uma linha
-// insira o código do cliente da impressora aqui
+// insira o cï¿½digo do cliente da impressora aqui
 // consulte rfc1179.txt para o protocolo
 
 DataInputStream in = new DataInputStream(socket
