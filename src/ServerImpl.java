@@ -49,7 +49,10 @@ public class ServerImpl implements Server {
 	}
 	
 	//wat
-	private void execute() {}
+	public void execute(StreamDetector sd) {
+		byte command = sd.getCommand();
+		System.out.println(command);
+	}
 	
 	//esse aqui tu mexe
 	private void open() {}

@@ -31,20 +31,20 @@ public class ClientImpl {
 		//connect();
 		
 		// se socket n�o for nulo, a conex�o est� ok
-		//if(socket != null) {
+		if(socket == null) {
 			try {
 				// respons�vel pela leitura e an�lise dos comandos
 				StreamDetector sd = new StreamDetector();
 				
 				for(;;) {
-					System.out.println("Be aware! This is a test! Your command: ");
+					System.out.print("Be aware! This is a test! Your command: ");
 					sd.detectInput();
 				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}
-	//}
+	}
 
 	private static void connect() throws RemoteException {
 		try {
