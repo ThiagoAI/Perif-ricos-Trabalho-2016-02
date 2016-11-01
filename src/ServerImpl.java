@@ -142,9 +142,27 @@ public class ServerImpl implements Server {
 		}
 	}
 	
-	private void rm(String file) {}
+	private void rm(String file) {
+		File dir = new File(currentPath + "/" + file);
+		if(dir.delete()){
+			//Nao fazer nada, teve sucesso
+		}
+		else{
+			String error = "Falha ao tentar destruir diretorio...";
+		}
+	}
 	
-	private void cp(String source, String target) {}
+	// TENHO QUE MELHORAR O TRATAMENTO DISSO CASO SEJA INTERNO A PASTA
+	private void cp(String source, String target) {
+		try {
+			File src = new File(currentPath + "/" + source);
+			File tar = new File(target);
+			Files.copy(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+		catch(Exception e){
+			String error = "There was an issue trying to...";
+		}
+	}
 	
 	private void close() {}
 	
@@ -154,5 +172,6 @@ public class ServerImpl implements Server {
 	
 	private void download(String file) {}
 	
+	// É UM CD FEITO NA MÁQUINA DO CLIENTE AO INVÉS DO SERVIDOR
 	private void lcd(String directory) {}
 }
