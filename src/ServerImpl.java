@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -95,15 +96,15 @@ public class ServerImpl implements Server {
 		}
 		else if(command == 9) {
 			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.cat(arg1);
+			message = this.cat(arg1, sd.getFile());
 		}
 		else if(command == 10) {
 			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.upload(arg1);
+			message = this.upload(arg1, sd.getFile());
 		}
 		else if(command == 11) {
 			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.download(arg1);
+			message = this.download(arg1, sd.getFile());
 		}
 		else if(command == 12) {
 			String arg1 = new String(sd.getArgument1(), "ASCII");
@@ -229,17 +230,22 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
-	private String[] cat(String file) {
+	private String[] cat(String filename, byte[] file) {
 		String message[] = {"Success"};
 		return message;
 	}
 	
-	private String[] upload(String file) {
+	private String[] upload(String filename, byte[] file) {
 		String message[] = {"Success"};
+		try {
+			Files.write(Paths.get(filename), file);
+		} catch (IOException e) {
+			message[0] = "Error due to connection lost or non-existing file.";
+		}
 		return message;
 	}
 	
-	private String[] download(String file) {
+	private String[] download(String filename, byte[] file) {
 		String message[] = {"Success"};
 		return message;
 	}
