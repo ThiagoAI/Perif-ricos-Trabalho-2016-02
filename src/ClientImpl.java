@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 
 /**
@@ -36,11 +37,17 @@ public class ClientImpl {
 				// responsï¿½vel pela leitura e anï¿½lise dos comandos
 				StreamDetector sd = new StreamDetector();
 				ServerImpl server = new ServerImpl();
+				String message[] = null;
 				
 				for(;;) {
-					System.out.print("Be aware! This is a test! Your command: ");
+					System.out.print(server.getCurrentPath() + "> ");
 					sd.detectInput();
-					server.execute(sd);
+					message = server.execute(sd);
+					for(int iter = 0; iter < message.length; iter++) {
+						//flagnojump indica que não há um retorno de texto
+						if(message[iter] == "flagnojump") {
+						} else { System.out.println(message[iter]); }
+					}
 				}
 			} catch (Exception e1) {
 				e1.printStackTrace();

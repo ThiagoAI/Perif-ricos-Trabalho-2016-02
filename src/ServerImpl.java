@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -39,6 +40,10 @@ public class ServerImpl implements Server {
 		connect();
 	}
 	
+	public String getCurrentPath() {
+		return this.currentPath;
+	}
+	
 	private static void connect() throws RemoteException {
 		try {
 			socket = new Socket(InetAddress.getLocalHost(), port);
@@ -48,44 +53,83 @@ public class ServerImpl implements Server {
 		}
 	}
 	
-	//wat
-	// Luiz: Isso era pra testar se o byte tavam correspondendo certinho.
-	public void execute(StreamDetector sd) {
+	public String[] execute(StreamDetector sd) throws UnsupportedEncodingException {
 		byte command = sd.getCommand();
-		/*System.out.println(command);
-		System.out.println(this.currentPath);*/
-		System.out.println(sd.getArgument1());;
-		if(command == 0) { this.open(sd.getArgument1().toString()); }
-		else if(command == 1) { this.ls(); }
-		else if(command == 2) { this.cd(sd.getArgument1().toString()); }
-		else if(command == 3) { this.mv(sd.getArgument1().toString(), sd.getArgument2().toString()); }
-		else if(command == 4) { this.mkdir(sd.getArgument1().toString()); }
-		else if(command == 5) { this.rmdir(sd.getArgument1().toString()); }
-		else if(command == 6) { this.rm(sd.getArgument1().toString()); }
-		else if(command == 7) { this.cp(sd.getArgument1().toString(), sd.getArgument2().toString()); }
-		else if(command == 8) { this.close(); }
-		else if(command == 9) { this.cat(sd.getArgument1().toString()); }
-		else if(command == 10) { this.upload(sd.getArgument1().toString()); }
-		else if(command == 11) { this.download(sd.getArgument1().toString()); }
-		else if(command == 12) { this.lcd(sd.getArgument1().toString()); }
+		String message[] = null;
+		
+		if(command == 0) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.open(arg1); 
+		}
+		else if(command == 1) {
+			message = this.ls(); 
+		}
+		else if(command == 2) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.cd(arg1);
+		}
+		else if(command == 3) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			String arg2 = new String(sd.getArgument2(), "ASCII");
+			message = this.mv(arg1, arg2);
+		}
+		else if(command == 4) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.mkdir(arg1);
+		}
+		else if(command == 5) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.rmdir(arg1);
+		}
+		else if(command == 6) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.rm(arg1);
+		}
+		else if(command == 7) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			String arg2 = new String(sd.getArgument2(), "ASCII");
+			message = this.cp(arg1, arg2);
+		}
+		else if(command == 8) {
+			message = this.close();
+		}
+		else if(command == 9) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.cat(arg1);
+		}
+		else if(command == 10) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.upload(arg1);
+		}
+		else if(command == 11) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.download(arg1);
+		}
+		else if(command == 12) {
+			String arg1 = new String(sd.getArgument1(), "ASCII");
+			message = this.lcd(arg1);
+		}
+		
+		return message;
 	}
 	
 	//esse aqui tu mexe
-	private void open(String address) {
-		
+	private String[] open(String address) {
+		String message[] = {"Connection has been established."};
+		return message;
 	}
 	
 	//Childs tem todos os elementos no diretÃ³rio listados
-	private void ls() {
+	private String[] ls() {
 		File dir = new File(currentPath);
         String children[] = dir.list();
-        for(int iter = 0; iter < children.length; iter++) {
-        	System.out.println(children[iter]);
-        }
+        return children;
 	}
 	
 	//Atualizamos o currentPath
-	private void cd(String directory) {
+	private String[] cd(String directory) {
+		String message[] = {"flagnojump"};
+		
 		//Se for .. voltamos para o diretÃ³rio pai
 		if(directory.equals("..")) {
 			File dir = new File(currentPath);
@@ -100,78 +144,109 @@ public class ServerImpl implements Server {
 			}
 			else {
 				//Comando estÃ¡ errado ver o que retornar aqui
-				String error = directory + ": no such file or directory.";
+				message[0] = directory + ": no such file or directory.";
 			}
 		}
-		System.out.println(this.currentPath);
+		
+		return message;
 	}
 	
 	//Tenta mover de source para target
 	//Assumo que ela dÃ¡ os dois absolute path...
 	//Se nÃ£o der tem que acrescentar currentPath
-	private void mv(String source, String target){
-		try{
-			Path src = Paths.get(source);
-			Path tar = Paths.get(target);
-			Files.move(src, tar, StandardCopyOption.REPLACE_EXISTING);
+	private String[] mv(String source, String target){
+		String message[] = {"Success."};
+		try {
+			File src = new File(currentPath + "/" + source);
+			File tar = new File(target);
+			Files.move(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
-		catch(Exception e){
-			String error = "There was an issue trying to...";
+		catch(Exception e) {
+			message[0] = "Error due to a non-existing file or directory.";
 		}
+		
+		return message;
 	}
 	
 	//Criamos diretÃ³rio
-	private void mkdir(String directory) {
+	private String[] mkdir(String directory) {
+		String message[] = {"Success."};
 		File dir = new File(currentPath + "/" + directory);
 		if(dir.mkdir()){
 			//Nao fazer nada, teve sucesso
 		}
 		else{
-			String error = "Falha ao tentar criar diretorio...";
+			message[0] = "Error.";
 		}
+		
+		return message;
 	}
 	
 	//Destruimos o diretÃ³rio
-	private void rmdir(String directory){
+	private String[] rmdir(String directory){
+		String message[] = {"Success."};
 		File dir = new File(currentPath + "/" + directory);
 		if(dir.delete()){
 			//Nao fazer nada, teve sucesso
 		}
 		else{
-			String error = "Falha ao tentar destruir diretorio...";
+			message[0] = "Error.";
 		}
+		
+		return message;
 	}
 	
-	private void rm(String file) {
+	private String[] rm(String file) {
+		String message[] = {"Success."};
 		File dir = new File(currentPath + "/" + file);
 		if(dir.delete()){
-			//Nao fazer nada, teve sucesso
+			//eureka
 		}
 		else{
-			String error = "Falha ao tentar destruir diretorio...";
+			message[0] = "Error.";
 		}
+		
+		return message;
 	}
 	
 	// TENHO QUE MELHORAR O TRATAMENTO DISSO CASO SEJA INTERNO A PASTA
-	private void cp(String source, String target) {
+	private String[] cp(String source, String target) {
+		String message[] = {"Success."};
 		try {
 			File src = new File(currentPath + "/" + source);
 			File tar = new File(target);
 			Files.copy(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch(Exception e){
-			String error = "There was an issue trying to...";
+			message[0] = "Error.";
 		}
+		
+		return message;
 	}
 	
-	private void close() {}
+	private String[] close() {
+		String message[] = {"Success"};
+		return message;
+	}
 	
-	private void cat(String file) {}
+	private String[] cat(String file) {
+		String message[] = {"Success"};
+		return message;
+	}
 	
-	private void upload(String file) {}
+	private String[] upload(String file) {
+		String message[] = {"Success"};
+		return message;
+	}
 	
-	private void download(String file) {}
+	private String[] download(String file) {
+		String message[] = {"Success"};
+		return message;
+	}
 	
 	// É UM CD FEITO NA MÁQUINA DO CLIENTE AO INVÉS DO SERVIDOR
-	private void lcd(String directory) {}
+	private String[] lcd(String directory) {
+		String message[] = {"Success"};
+		return message;
+	}
 }
