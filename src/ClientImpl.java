@@ -35,10 +35,12 @@ public class ClientImpl {
 			try {
 				// respons�vel pela leitura e an�lise dos comandos
 				StreamDetector sd = new StreamDetector();
+				ServerImpl server = new ServerImpl();
 				
 				for(;;) {
 					System.out.print("Be aware! This is a test! Your command: ");
 					sd.detectInput();
+					server.execute(sd);
 				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
