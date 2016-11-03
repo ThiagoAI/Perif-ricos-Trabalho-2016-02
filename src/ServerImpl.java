@@ -21,8 +21,10 @@ import javax.swing.JTree;
  * @author Luiz Nunes Junior, Thiago Anders Imhoff
  */
 
-//TODO NA TRATANDO CASO SE O USUÃ�RIO POR O CAMINHO COMPLETO
-// SERÃ� QUE Ã‰ PRA TRATAR?
+//TODO maybe it's not working properly given the absolute path
+//TODO must verify the error messages that are returned to our client
+//TODO must test how our program works in an online environment
+//TODO talk to tinhoso about the flag_nojump
 
 public class ServerImpl implements Server {
 	static int port = 1515;
@@ -129,7 +131,7 @@ public class ServerImpl implements Server {
 	
 	//Atualizamos o currentPath
 	private String[] cd(String directory) {
-		String message[] = {"flagnojump"};
+		String message[] = {"FlagEmptyDirectory"};
 		
 		//Se for .. voltamos para o diretÃ³rio pai
 		if(directory.equals("..")) {
@@ -197,11 +199,12 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
+	// delete files
 	private String[] rm(String file) {
 		String message[] = {"Success."};
 		File dir = new File(currentPath + "/" + file);
 		if(dir.delete()){
-			//eureka
+			//Success.
 		}
 		else{
 			message[0] = "Error.";
@@ -210,7 +213,7 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
-	// TENHO QUE MELHORAR O TRATAMENTO DISSO CASO SEJA INTERNO A PASTA
+	// copy and paste files
 	private String[] cp(String source, String target) {
 		String message[] = {"Success."};
 		try {

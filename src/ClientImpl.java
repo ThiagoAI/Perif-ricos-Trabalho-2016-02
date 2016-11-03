@@ -31,22 +31,23 @@ public class ClientImpl {
 	public static void main(String[] args) throws RemoteException {
 		//connect();
 		
-		// se socket nï¿½o for nulo, a conexï¿½o estï¿½ ok
+		// if socket is not null then we are online
+		// requests from client are now green lighted
 		if(socket == null) {
 			try {
-				// responsï¿½vel pela leitura e anï¿½lise dos comandos
 				StreamDetector sd = new StreamDetector();
 				ServerImpl server = new ServerImpl();
 				String message[] = null;
 				
 				for(;;) {
-					System.out.print(server.getCurrentPath() + "> ");
-					sd.detectInput();
-					message = server.execute(sd);
-					for(int iter = 0; iter < message.length; iter++) {
-						//flagnojump indica que não há um retorno de texto
-						if(message[iter] == "flagnojump") {
-						} else { System.out.println(message[iter]); }
+					System.out.print(server.getCurrentPath() + "$ ");
+					// guarantees the integrity of our protocol
+					if(sd.detectInput() != null) {
+						message = server.execute(sd); // only approved 
+						for(int iter = 0; iter < message.length; iter++) {
+							if(message[iter] == "FlagEmptyDirectory") {
+							} else { System.out.println(message[iter]); }
+						}
 					}
 				}
 			} catch (Exception e1) {

@@ -135,10 +135,13 @@ public class StreamDetector {
 		//Se tiver erro entra aqui
 		else{
 		printError();
+		return null;
+		/*this.command = 127;
+		condition = false;*/
 		}
-		
 		//Fim do while
 		}
+		//System.out.println("Command number " + this.command + ".");
 		
 		return input;
 	}
@@ -235,7 +238,7 @@ public class StreamDetector {
 	//Imprime erro baseado no errorType e então reseta ele para -1
 	void printError(){
 		if(this.errorType == 0){
-			System.out.println("Erro " + this.errorType + "detectado: "
+			System.out.println("Erro " + this.errorType + " detectado: "
 					+ "seu comando nao foi reconhecido.");
 			return;
 		}
