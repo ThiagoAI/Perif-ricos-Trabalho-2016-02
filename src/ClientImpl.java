@@ -23,7 +23,7 @@ import java.rmi.RemoteException;
  */
 
 public class ClientImpl {
-	static String host = "192.168.1.30";
+	static String host = "172.20.73.128";
 	static int port = 1515;
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
@@ -42,11 +42,19 @@ public class ClientImpl {
 				for(;;) {
 					System.out.print(server.getCurrentPath() + "$ ");
 					// guarantees the integrity of our protocol
+					// 172.20.73.128 - Server Thiago
+					// 172.20.72.45 - Client Junior
 					if(sd.detectInput() != null) {
-						message = server.execute(sd); // only approved 
-						for(int iter = 0; iter < message.length; iter++) {
-							if(message[iter] == "FlagEmptyDirectory") {
-							} else { System.out.println(message[iter]); }
+						if(sd.getCommand() == 0) {
+							String address = new String(sd.getArgument1(), "ASCII");
+							System.out.println("Eu sou o Open-chan, e meu CPF é " + address + ".");
+							connect(address);
+						} else {
+							message = server.execute(sd); // only approved 
+							for(int iter = 0; iter < message.length; iter++) {
+								if(message[iter] == "FlagEmptyDirectory") {
+								} else { System.out.println(message[iter]); }
+							}
 						}
 					}
 				}
@@ -56,14 +64,14 @@ public class ClientImpl {
 		}
 	}
 
-	private static void connect() throws RemoteException {
+	private static void connect(String address) throws RemoteException {
 		try {
-			System.out.println("Connect with " + host);
-			socket = new Socket(InetAddress.getByName(host), port);
+			System.out.println("Connect with " + address);
+			socket = new Socket(InetAddress.getByName(address), port);
 			socket.setSoTimeout(timeout);
 		} catch (Exception e1) {
 			System.out.println( 
-					"Error while connecting to " + host + ":" + port );
+					"Error while connecting to " + address + ":" + port );
 			System.out.println(e1.getMessage());
 		}
 	}

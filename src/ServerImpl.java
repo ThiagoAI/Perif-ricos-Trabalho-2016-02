@@ -39,21 +39,12 @@ public class ServerImpl implements Server {
 		this.currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
 	}
 	
-	public static void main(String[] args) throws RemoteException {
-		connect();
+	public static void main(String[] args) {
+		
 	}
 	
 	public String getCurrentPath() {
 		return this.currentPath;
-	}
-	
-	private static void connect() throws RemoteException {
-		try {
-			socket = new Socket(InetAddress.getLocalHost(), port);
-			socket.setSoTimeout(timeout);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
 	}
 	
 	public String[] execute(StreamDetector sd) throws UnsupportedEncodingException {
@@ -116,9 +107,25 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
-	//esse aqui tu mexe
+	// connect to the user
 	private String[] open(String address) {
 		String message[] = {"Connection has been established."};
+		/*
+		try {
+			socket = new Socket(InetAddress.getLocalHost(), port);
+			socket.setSoTimeout(timeout);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		*/
+		try {
+			System.out.println("Connect with " + address);
+			socket = new Socket(InetAddress.getByName(address), port);
+			socket.setSoTimeout(timeout);
+		} catch (Exception e1) {
+			message[0] = "Error while connecting to " + address + " : " + port;
+		}
+		
 		return message;
 	}
 	
