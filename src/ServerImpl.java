@@ -24,16 +24,12 @@ import javax.swing.JTree;
 //TODO maybe it's not working properly given the absolute path
 //TODO must verify the error messages that are returned to our client
 //TODO must test how our program works in an online environment
-//TODO talk to tinhoso about the flag_nojump
 
 public class ServerImpl implements Server {
 	static int port = 1515;
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
 	String currentPath;
-	
-	//Um erro na classe pode ser uma boa
-	//String error;
 	
 	public ServerImpl() {
 		this.currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
@@ -104,6 +100,8 @@ public class ServerImpl implements Server {
 			message = this.lcd(arg1);
 		}
 		
+		sd.eraseArguments();
+		
 		return message;
 	}
 	
@@ -119,10 +117,10 @@ public class ServerImpl implements Server {
 		}
 		*/
 		try {
-			System.out.println("Connect with " + address);
+			System.out.println("Connecting with " + address + "...");
 			socket = new Socket(InetAddress.getByName(address), port);
 			socket.setSoTimeout(timeout);
-		} catch (Exception e1) {
+		} catch (Exception e) {
 			message[0] = "Error while connecting to " + address + " : " + port;
 		}
 		
@@ -165,14 +163,14 @@ public class ServerImpl implements Server {
 	//Assumo que ela dÃ¡ os dois absolute path...
 	//Se nÃ£o der tem que acrescentar currentPath
 	private String[] mv(String source, String target){
-		String message[] = {"Success."};
+		String message[] = {"[Success] File has been successfully moved."};
 		try {
 			File src = new File(currentPath + "/" + source);
 			File tar = new File(target);
 			Files.move(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch(Exception e) {
-			message[0] = "Error due to a non-existing file or directory.";
+			message[0] = "[Error] Could not move the file or directory.";
 		}
 		
 		return message;
@@ -180,13 +178,13 @@ public class ServerImpl implements Server {
 	
 	//Criamos diretÃ³rio
 	private String[] mkdir(String directory) {
-		String message[] = {"Success."};
+		String message[] = {"[Success] Folder created."};
 		File dir = new File(currentPath + "/" + directory);
 		if(dir.mkdir()){
 			//Nao fazer nada, teve sucesso
 		}
 		else{
-			message[0] = "Error.";
+			message[0] = "[Error] Could not create the folder.";
 		}
 		
 		return message;
@@ -194,13 +192,13 @@ public class ServerImpl implements Server {
 	
 	//Destruimos o diretÃ³rio
 	private String[] rmdir(String directory){
-		String message[] = {"Success."};
+		String message[] = {"[Success] Folder deleted."};
 		File dir = new File(currentPath + "/" + directory);
 		if(dir.delete()){
 			//Nao fazer nada, teve sucesso
 		}
 		else{
-			message[0] = "Error.";
+			message[0] = "[Error] Could not delete the folder.";
 		}
 		
 		return message;
@@ -208,13 +206,13 @@ public class ServerImpl implements Server {
 	
 	// delete files
 	private String[] rm(String file) {
-		String message[] = {"Success."};
+		String message[] = {"[Success] File deleted."};
 		File dir = new File(currentPath + "/" + file);
 		if(dir.delete()){
 			//Success.
 		}
 		else{
-			message[0] = "Error.";
+			message[0] = "[Error] Could not delete the file.";
 		}
 		
 		return message;
@@ -222,21 +220,26 @@ public class ServerImpl implements Server {
 	
 	// copy and paste files
 	private String[] cp(String source, String target) {
-		String message[] = {"Success."};
+		String message[] = {"[Success] Copied and pasted."};
 		try {
 			File src = new File(currentPath + "/" + source);
 			File tar = new File(target);
 			Files.copy(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch(Exception e){
-			message[0] = "Error.";
+			message[0] = "[Error] File could not be copied.";
 		}
 		
 		return message;
 	}
 	
 	private String[] close() {
-		String message[] = {"Success"};
+		String message[] = {"[Success] Connection successfully closed."};
+		try {
+			socket.close();
+		} catch (IOException e) {
+			message[0] = "[Error] Connection shutdown has failed.";
+		}
 		return message;
 	}
 	
@@ -246,11 +249,11 @@ public class ServerImpl implements Server {
 	}
 	
 	private String[] upload(String filename, byte[] file) {
-		String message[] = {"Success"};
+		String message[] = {"[Success] Upload complete."};
 		try {
 			Files.write(Paths.get(filename), file);
 		} catch (IOException e) {
-			message[0] = "Error due to connection lost or non-existing file.";
+			message[0] = "[Error] Upload incomplete.";
 		}
 		return message;
 	}

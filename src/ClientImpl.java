@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -27,6 +28,13 @@ public class ClientImpl {
 	static int port = 1515;
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
+	static ByteArrayOutputStream output;
+	static boolean greenlight;
+	
+	public ClientImpl() {
+		output = new ByteArrayOutputStream();
+		greenlight = false;
+	}
 
 	public static void main(String[] args) throws RemoteException {
 		//connect();
@@ -41,20 +49,27 @@ public class ClientImpl {
 				
 				for(;;) {
 					System.out.print(server.getCurrentPath() + "$ ");
-					// guarantees the integrity of our protocol
 					// 172.20.73.128 - Server Thiago
 					// 172.20.72.45 - Client Junior
+					// guarantees the integrity of our protocol
 					if(sd.detectInput() != null) {
 						if(sd.getCommand() == 0) {
+							// client has requested a connection
 							String address = new String(sd.getArgument1(), "ASCII");
-							System.out.println("Eu sou o Open-chan, e meu CPF é " + address + ".");
-							connect(address);
+							if(connect(address)) { greenlight = true; }
 						} else {
-							message = server.execute(sd); // only approved 
+							// otherwise another command was given
 							for(int iter = 0; iter < message.length; iter++) {
 								if(message[iter] == "FlagEmptyDirectory") {
+									// if empty directory then print nothing
 								} else { System.out.println(message[iter]); }
 							}
+						}
+						
+						if(greenlight) {
+							// the package is only built if there is an active connection
+							DataOutputStream courier = new DataOutputStream(socket.getOutputStream());
+							courier.write(buildOutput(sd));
 						}
 					}
 				}
@@ -64,17 +79,50 @@ public class ClientImpl {
 		}
 	}
 
-	private static void connect(String address) throws RemoteException {
+	private static boolean connect(String address) throws RemoteException {
 		try {
 			System.out.println("Connect with " + address);
 			socket = new Socket(InetAddress.getByName(address), port);
 			socket.setSoTimeout(timeout);
 		} catch (Exception e1) {
-			System.out.println( 
-					"Error while connecting to " + address + ":" + port );
+			System.out.println("Error while connecting to " + address + ":" + port);
 			System.out.println(e1.getMessage());
+			return false;
 		}
+		
+		return true;
 	}
+	
+	private static byte[] buildOutput(StreamDetector sd) {
+		try {
+			output.write(sd.getCommand());
+			if(sd.getArgument2() != null) {
+				// if there is a second argument then write it
+				output.write(sd.getSize1());
+				output.write(sd.getArgument1());
+				output.write(sd.getSize2());
+				output.write(sd.getArgument2());
+			} else {
+				// otherwise just the first argument
+				System.out.println("(Test) Argument2 is NULL.");
+				output.write(sd.getSize1());
+				output.write(sd.getArgument1());
+			}
+			
+			if(sd.isOnlineCommand()) {
+				// in case of cat, upload or download, we must write the file
+				System.out.println("(Test) Command requires online connection.");
+				// output.write(sd.getFilesizeSize());
+				// output.write(sd.getFilesize());
+				// output.write(sd.getFile());
+			}
+		} catch(Exception e) {
+			
+		}
+		
+		return output.toByteArray();
+	}
+	
 }
 
 /*

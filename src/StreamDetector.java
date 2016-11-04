@@ -264,13 +264,30 @@ public class StreamDetector {
 		this.errorType = -1;
 	}
 	
+	public void eraseArguments() {
+		this.argument1 = null;
+		this.argument2 = null;
+	}
+	
+	public boolean isOnlineCommand() {
+		if(this.command == 9 || this.command == 10 || this.command == 11) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	//GETTERS
 	byte getCommand(){
 		return this.command;
 	}
 	
-	byte[] getSizes(){
-		return this.sizes;
+	byte getSize1(){
+		return this.sizes[0];
+	}
+	
+	byte getSize2(){
+		return this.sizes[1];
 	}
 	
 	byte[] getArgument1(){
@@ -283,6 +300,10 @@ public class StreamDetector {
 	
 	byte[] getFilesize(){
 		return this.filesize;
+	}
+	
+	byte getFilesizeSize() {
+		return (byte) this.filesize.length;
 	}
 	
 	byte[] getFile(){
