@@ -1,3 +1,4 @@
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,13 +31,27 @@ public class ServerImpl implements Server {
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
 	String currentPath;
+	static boolean greenlight;
 	
 	public ServerImpl() {
 		this.currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+		greenlight = false;
 	}
 	
 	public static void main(String[] args) {
-		
+		for(;;) {
+			// server keeps waiting for a command
+			if(greenlight) {
+				// server only checks for an input if there's a connection
+				try {
+					DataInputStream in = new DataInputStream(socket.getInputStream());	
+					byte command = in.readByte();
+					System.out.println("Command: " + command);
+					byte arg1size = in.readByte();
+					System.out.println("Arg 1 Size: " + arg1size);
+				} catch (Exception e) {}
+			}
+		}
 	}
 	
 	public String getCurrentPath() {

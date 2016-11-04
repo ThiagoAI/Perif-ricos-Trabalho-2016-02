@@ -39,33 +39,36 @@ public class ClientImpl {
 	public static void main(String[] args) throws RemoteException {
 		try {
 			StreamDetector sd = new StreamDetector();
-			ServerImpl server = new ServerImpl();
+			// ServerImpl server = new ServerImpl();
 			String message[] = null;
 			
 			for(;;) {
-				System.out.print(server.getCurrentPath() + "$ ");
-				// 172.20.73.128 - Server Thiago
-				// 172.20.72.45 - Client Junior
-				// guarantees the integrity of our protocol
+				if(greenlight == false) {
+					// the client is still offline
+					System.out.println("");
+				}
+				
 				if(sd.detectInput() != null) {
 					if(sd.getCommand() == 0) {
 						// client has requested a connection
 						String address = new String(sd.getArgument1(), "ASCII");
 						if(connect(address)) { greenlight = true; }
-					} else {
-						// otherwise another command was given
+					}
+					
+					// it doesn't make sense that the client is able to request commands
+					// if he's not connected to a server yet
+					
+					if(greenlight) {
+						// the package is only built if there is an active connection
+						DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+						out.write(buildOutput(sd));
+						
 						for(int iter = 0; iter < message.length; iter++) {
 							if(message[iter] == "FlagEmptyDirectory") {
 								// if empty directory then print nothing
 							} else { System.out.println(message[iter]); }
 						}
-					}
-					
-					if(greenlight) {
-						// the package is only built if there is an active connection
-						DataOutputStream courier = new DataOutputStream(socket.getOutputStream());
-						courier.write(buildOutput(sd));
-					}
+					} else { System.out.println("Not connected to a server yet..."); }
 				}
 			}
 		} catch (Exception e1) {
@@ -106,9 +109,9 @@ public class ClientImpl {
 			if(sd.isOnlineCommand()) {
 				// in case of cat, upload or download, we must write the file
 				System.out.println("(Test) Command requires online connection.");
-				// output.write(sd.getFilesizeSize());
-				// output.write(sd.getFilesize());
-				// output.write(sd.getFile());
+				output.write(sd.getFilesizeSize());
+				output.write(sd.getFilesize());
+				output.write(sd.getFile());
 			}
 		} catch(Exception e) {
 			
