@@ -37,45 +37,39 @@ public class ClientImpl {
 	}
 
 	public static void main(String[] args) throws RemoteException {
-		//connect();
-		
-		// if socket is not null then we are online
-		// requests from client are now green lighted
-		if(socket == null) {
-			try {
-				StreamDetector sd = new StreamDetector();
-				ServerImpl server = new ServerImpl();
-				String message[] = null;
-				
-				for(;;) {
-					System.out.print(server.getCurrentPath() + "$ ");
-					// 172.20.73.128 - Server Thiago
-					// 172.20.72.45 - Client Junior
-					// guarantees the integrity of our protocol
-					if(sd.detectInput() != null) {
-						if(sd.getCommand() == 0) {
-							// client has requested a connection
-							String address = new String(sd.getArgument1(), "ASCII");
-							if(connect(address)) { greenlight = true; }
-						} else {
-							// otherwise another command was given
-							for(int iter = 0; iter < message.length; iter++) {
-								if(message[iter] == "FlagEmptyDirectory") {
-									// if empty directory then print nothing
-								} else { System.out.println(message[iter]); }
-							}
-						}
-						
-						if(greenlight) {
-							// the package is only built if there is an active connection
-							DataOutputStream courier = new DataOutputStream(socket.getOutputStream());
-							courier.write(buildOutput(sd));
+		try {
+			StreamDetector sd = new StreamDetector();
+			ServerImpl server = new ServerImpl();
+			String message[] = null;
+			
+			for(;;) {
+				System.out.print(server.getCurrentPath() + "$ ");
+				// 172.20.73.128 - Server Thiago
+				// 172.20.72.45 - Client Junior
+				// guarantees the integrity of our protocol
+				if(sd.detectInput() != null) {
+					if(sd.getCommand() == 0) {
+						// client has requested a connection
+						String address = new String(sd.getArgument1(), "ASCII");
+						if(connect(address)) { greenlight = true; }
+					} else {
+						// otherwise another command was given
+						for(int iter = 0; iter < message.length; iter++) {
+							if(message[iter] == "FlagEmptyDirectory") {
+								// if empty directory then print nothing
+							} else { System.out.println(message[iter]); }
 						}
 					}
+					
+					if(greenlight) {
+						// the package is only built if there is an active connection
+						DataOutputStream courier = new DataOutputStream(socket.getOutputStream());
+						courier.write(buildOutput(sd));
+					}
 				}
-			} catch (Exception e1) {
-				e1.printStackTrace();
 			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
 		}
 	}
 
