@@ -4,34 +4,22 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-
-import javax.swing.JTree;
 
 /**
- * 
  * @author Luiz Nunes Junior, Thiago Anders Imhoff
  */
 
 //TODO maybe it's not working properly given the absolute path
-//TODO must verify the error messages that are returned to our client
-//TODO must test how our program works in an online environment
 
 public class ServerImpl implements Server {
 	static int port = 1515;
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
 	String currentPath;
-	static boolean greenlight;
+	static boolean greenlight; // equals to true when a connection is established
 	
 	public ServerImpl() {
 		this.currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
@@ -46,9 +34,10 @@ public class ServerImpl implements Server {
 				try {
 					DataInputStream in = new DataInputStream(socket.getInputStream());	
 					byte command = in.readByte();
-					System.out.println("Command: " + command);
+					System.out.println("Reading byte by byte in order to test.");
+					System.out.println("(Test) Command: " + command);
 					byte arg1size = in.readByte();
-					System.out.println("Arg 1 Size: " + arg1size);
+					System.out.println("(Test) Arg 1 Size: " + arg1size);
 				} catch (Exception e) {}
 			}
 		}
@@ -116,6 +105,9 @@ public class ServerImpl implements Server {
 		}
 		
 		sd.eraseArguments();
+		// need to set both arguments to null in order to prevent
+		// a bug that may happen if an one-argument command is
+		// given after a two-arguments command
 		
 		return message;
 	}
@@ -123,14 +115,7 @@ public class ServerImpl implements Server {
 	// connect to the user
 	private String[] open(String address) {
 		String message[] = {"Connection has been established."};
-		/*
-		try {
-			socket = new Socket(InetAddress.getLocalHost(), port);
-			socket.setSoTimeout(timeout);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		*/
+		
 		try {
 			System.out.println("Connecting with " + address + "...");
 			socket = new Socket(InetAddress.getByName(address), port);

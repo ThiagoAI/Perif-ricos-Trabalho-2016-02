@@ -1,12 +1,7 @@
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.file.Paths;
 import java.rmi.RemoteException;
 
 /**
@@ -29,7 +24,7 @@ public class ClientImpl {
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
 	static ByteArrayOutputStream output;
-	static boolean greenlight;
+	static boolean greenlight; // is true when a connection is established
 	
 	public ClientImpl() {
 		output = new ByteArrayOutputStream();
@@ -39,15 +34,9 @@ public class ClientImpl {
 	public static void main(String[] args) throws RemoteException {
 		try {
 			StreamDetector sd = new StreamDetector();
-			// ServerImpl server = new ServerImpl();
 			String message[] = null;
 			
 			for(;;) {
-				if(greenlight == false) {
-					// the client is still offline
-					System.out.println("");
-				}
-				
 				if(sd.detectInput() != null) {
 					if(sd.getCommand() == 0) {
 						// client has requested a connection
@@ -62,7 +51,10 @@ public class ClientImpl {
 						// the package is only built if there is an active connection
 						DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 						out.write(buildOutput(sd));
+						// a single call of the write function is enough
+						// because a byte array containing every field is given
 						
+						//TODO change message for a DataInputStream
 						for(int iter = 0; iter < message.length; iter++) {
 							if(message[iter] == "FlagEmptyDirectory") {
 								// if empty directory then print nothing
@@ -101,20 +93,20 @@ public class ClientImpl {
 				output.write(sd.getArgument2());
 			} else {
 				// otherwise just the first argument
-				System.out.println("(Test) Argument2 is NULL.");
+				System.out.println("(Test) Argument2 is NULL.)");
 				output.write(sd.getSize1());
 				output.write(sd.getArgument1());
 			}
 			
 			if(sd.isOnlineCommand()) {
-				// in case of cat, upload or download, we must write the file
+				// in case of cat, upload or download, we must write the file as well
 				System.out.println("(Test) Command requires online connection.");
 				output.write(sd.getFilesizeSize());
 				output.write(sd.getFilesize());
 				output.write(sd.getFile());
 			}
 		} catch(Exception e) {
-			
+			System.out.println("It was not possible to proceed with the request.");
 		}
 		
 		return output.toByteArray();
