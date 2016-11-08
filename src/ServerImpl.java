@@ -3,7 +3,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -25,27 +24,34 @@ public class ServerImpl implements Server {
 	static Socket client = null;
 	static DataOutputStream out = null;
 	static DataInputStream in = null;
+	static byte arg1[] = null;
+	static byte arg2[] = null;
+	static byte file[] = null;
 	
-	public static void main(String[] args) throws IOException {
-		System.out.println("Initializing...");
+	public static void main(String[] args) {
+		try {
+			System.out.println("Initializing...");
+			server = new ServerSocket(port);
+			client = server.accept();
+			// the server will stop and wait for a successful connection
+			// before proceeding
+			System.out.println("Connected.");
+			
+			in = new DataInputStream(client.getInputStream());
+			out = new DataOutputStream(client.getOutputStream());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
-		server = new ServerSocket(port);
-		client = server.accept();
-		// the server will stop and wait for a successful connection
-		// before proceeding
-		
-		System.out.println("Connected.");
-		in = new DataInputStream(client.getInputStream());
-		out = new DataOutputStream(client.getOutputStream());
 		for(;;) {
 			// server only checks for an input if there's a connection
 			try {
-				
 				byte command = in.readByte();
-				System.out.println("Reading byte by byte in order to test.");
-				System.out.println("(Test) Command: " + command);
-				byte arg1size = in.readByte();
-				System.out.println("(Test) Arg 1 Size: " + arg1size);
+				execute(command);
+				
+				in.notify();
+				// awakes the client, indicating that there's a message for him
+				// to print
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -53,70 +59,87 @@ public class ServerImpl implements Server {
 	}
 	
 	public String getCurrentPath() {
-		return this.currentPath;
+		return currentPath;
 	}
 	
-	public String[] execute(StreamDetector sd) throws UnsupportedEncodingException {
-		byte command = sd.getCommand();
+	private static void unpack1() {
+		try {
+			for(int iter = 0; iter < in.readByte(); iter++) { arg1[iter] = in.readByte(); }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void unpack2() {
+		try {
+			for(int iter = 0; iter < in.readByte(); iter++) { arg1[iter] = in.readByte(); }
+			for(int iter = 0; iter < in.readByte(); iter++) { arg2[iter] = in.readByte(); }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void unpack3() {
+		try {
+			for(int iter = 0; iter < in.readByte(); iter++) { arg1[iter] = in.readByte(); }
+			for(int iter = 0; iter < in.readByte() + 1; iter++) { file[iter] = in.readByte(); }
+			// first byte is file size
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static String toAsc2(byte transform[]) throws UnsupportedEncodingException {
+		String answer = new String(transform, "ASCII");
+		return answer;
+	}
+	
+	public static String[] execute(byte command) throws UnsupportedEncodingException {
 		String message[] = null;
 		
-		/*if(command == 0) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.open(arg1); 
-		}
-		else */if(command == 1) {
-			message = this.ls(); 
+		if(command == 1) {
+			message = ls();
 		}
 		else if(command == 2) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.cd(arg1);
+			unpack1();
+			message = cd(toAsc2(arg1));
 		}
 		else if(command == 3) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			String arg2 = new String(sd.getArgument2(), "ASCII");
-			message = this.mv(arg1, arg2);
+			unpack2();
+			message = mv(toAsc2(arg1), toAsc2(arg2));
 		}
 		else if(command == 4) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.mkdir(arg1);
+			unpack1();
+			message = mkdir(toAsc2(arg1));
 		}
 		else if(command == 5) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.rmdir(arg1);
+			unpack1();
+			message = rmdir(toAsc2(arg1));
 		}
 		else if(command == 6) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.rm(arg1);
+			unpack1();
+			message = rm(toAsc2(arg1));
 		}
 		else if(command == 7) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			String arg2 = new String(sd.getArgument2(), "ASCII");
-			message = this.cp(arg1, arg2);
+			unpack2();
+			message = cp(toAsc2(arg1), toAsc2(arg2));
 		}
-		/*else if(command == 8) {
-			message = this.close();
-		}*/
 		else if(command == 9) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.cat(arg1, sd.getFile());
+			unpack3();
+			message = cat(toAsc2(arg1), file);
 		}
 		else if(command == 10) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.upload(arg1, sd.getFile());
+			unpack3();
+			message = upload(toAsc2(arg1), file);
 		}
 		else if(command == 11) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.download(arg1, sd.getFile());
+			unpack3();
+			message = download(toAsc2(arg1), file);
 		}
 		else if(command == 12) {
-			String arg1 = new String(sd.getArgument1(), "ASCII");
-			message = this.lcd(arg1);
+			unpack1();
+			message = lcd(toAsc2(arg1));
 		}
-		
-		sd.eraseArguments();
-		// need to set both arguments to null in order to prevent
-		// a bug that may happen if an one-argument command is
-		// given after a two-arguments command
 		
 		return message;
 	}
@@ -140,14 +163,14 @@ public class ServerImpl implements Server {
 	*/
 	
 	//Childs tem todos os elementos no diretÃ³rio listados
-	private String[] ls() {
+	private static String[] ls() {
 		File dir = new File(currentPath);
         String children[] = dir.list();
         return children;
 	}
 	
 	//Atualizamos o currentPath
-	private String[] cd(String directory) {
+	private static String[] cd(String directory) {
 		String message[] = {"FlagEmptyDirectory"};
 		
 		//Se for .. voltamos para o diretÃ³rio pai
@@ -160,7 +183,7 @@ public class ServerImpl implements Server {
 		} else {
 			File dir = new File(currentPath + "/" + directory);
 			if(dir.isDirectory() == true) {
-				this.currentPath = this.currentPath + "/" + directory;
+				currentPath = currentPath + "/" + directory;
 			}
 			else {
 				//Comando estÃ¡ errado ver o que retornar aqui
@@ -174,7 +197,7 @@ public class ServerImpl implements Server {
 	//Tenta mover de source para target
 	//Assumo que ela dÃ¡ os dois absolute path...
 	//Se nÃ£o der tem que acrescentar currentPath
-	private String[] mv(String source, String target){
+	private static String[] mv(String source, String target){
 		String message[] = {"[Success] File has been successfully moved."};
 		try {
 			File src = new File(currentPath + "/" + source);
@@ -189,7 +212,7 @@ public class ServerImpl implements Server {
 	}
 	
 	//Criamos diretÃ³rio
-	private String[] mkdir(String directory) {
+	private static String[] mkdir(String directory) {
 		String message[] = {"[Success] Folder created."};
 		File dir = new File(currentPath + "/" + directory);
 		if(dir.mkdir()){
@@ -203,7 +226,7 @@ public class ServerImpl implements Server {
 	}
 	
 	//Destruimos o diretÃ³rio
-	private String[] rmdir(String directory){
+	private static String[] rmdir(String directory){
 		String message[] = {"[Success] Folder deleted."};
 		File dir = new File(currentPath + "/" + directory);
 		if(dir.delete()){
@@ -217,7 +240,7 @@ public class ServerImpl implements Server {
 	}
 	
 	// delete files
-	private String[] rm(String file) {
+	private static String[] rm(String file) {
 		String message[] = {"[Success] File deleted."};
 		File dir = new File(currentPath + "/" + file);
 		if(dir.delete()){
@@ -231,7 +254,7 @@ public class ServerImpl implements Server {
 	}
 	
 	// copy and paste files
-	private String[] cp(String source, String target) {
+	private static String[] cp(String source, String target) {
 		String message[] = {"[Success] Copied and pasted."};
 		try {
 			File src = new File(currentPath + "/" + source);
@@ -256,12 +279,12 @@ public class ServerImpl implements Server {
 		return message;
 	}*/
 	
-	private String[] cat(String filename, byte[] file) {
+	private static String[] cat(String filename, byte[] file) {
 		String message[] = {"Success"};
 		return message;
 	}
 	
-	private String[] upload(String filename, byte[] file) {
+	private static String[] upload(String filename, byte[] file) {
 		String message[] = {"[Success] Upload complete."};
 		try {
 			Files.write(Paths.get(filename), file);
@@ -271,13 +294,13 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
-	private String[] download(String filename, byte[] file) {
+	private static String[] download(String filename, byte[] file) {
 		String message[] = {"Success"};
 		return message;
 	}
 	
 	// É UM CD FEITO NA MÁQUINA DO CLIENTE AO INVÉS DO SERVIDOR
-	private String[] lcd(String directory) {
+	private static String[] lcd(String directory) {
 		String message[] = {"Success"};
 		return message;
 	}
