@@ -1,4 +1,5 @@
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,24 +19,28 @@ import java.nio.file.StandardCopyOption;
 public class ServerImpl implements Server {
 	static int port = 1515;
 	static int timeout = 60000; // 60s
-	static Socket socket = null;
-	String currentPath;
-	static boolean greenlight; // equals to true when a connection is established
-	
-	public ServerImpl() {
-		this.currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
-		greenlight = false;
-	}
+	static boolean greenlight = false; // equals to true when a connection is established
+	static String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+	static ServerSocket server = null;
+	static Socket client = null;
+	static DataOutputStream out = null;
+	static DataInputStream in = null;
 	
 	public static void main(String[] args) throws IOException {
 		System.out.println("Initializing...");
-		ServerSocket server = new ServerSocket(1515);
-		Socket clientsocket = server.accept();
+		
+		server = new ServerSocket(port);
+		client = server.accept();
+		// the server will stop and wait for a successful connection
+		// before proceeding
+		
 		System.out.println("Connected.");
+		in = new DataInputStream(client.getInputStream());
+		out = new DataOutputStream(client.getOutputStream());
 		for(;;) {
 			// server only checks for an input if there's a connection
 			try {
-				DataInputStream in = new DataInputStream(clientsocket.getInputStream());
+				
 				byte command = in.readByte();
 				System.out.println("Reading byte by byte in order to test.");
 				System.out.println("(Test) Command: " + command);
@@ -55,11 +60,11 @@ public class ServerImpl implements Server {
 		byte command = sd.getCommand();
 		String message[] = null;
 		
-		if(command == 0) {
+		/*if(command == 0) {
 			String arg1 = new String(sd.getArgument1(), "ASCII");
 			message = this.open(arg1); 
 		}
-		else if(command == 1) {
+		else */if(command == 1) {
 			message = this.ls(); 
 		}
 		else if(command == 2) {
@@ -88,9 +93,9 @@ public class ServerImpl implements Server {
 			String arg2 = new String(sd.getArgument2(), "ASCII");
 			message = this.cp(arg1, arg2);
 		}
-		else if(command == 8) {
+		/*else if(command == 8) {
 			message = this.close();
-		}
+		}*/
 		else if(command == 9) {
 			String arg1 = new String(sd.getArgument1(), "ASCII");
 			message = this.cat(arg1, sd.getFile());
@@ -116,7 +121,9 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
-	// connect to the user
+	// obselete function
+	// this fuctionality is done by the main
+	/*
 	private String[] open(String address) {
 		String message[] = {"Connection has been established."};
 		
@@ -130,6 +137,7 @@ public class ServerImpl implements Server {
 		
 		return message;
 	}
+	*/
 	
 	//Childs tem todos os elementos no diretÃ³rio listados
 	private String[] ls() {
@@ -237,7 +245,8 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
-	private String[] close() {
+	// needs to be remade
+	/*private String[] close() {
 		String message[] = {"[Success] Connection successfully closed."};
 		try {
 			socket.close();
@@ -245,7 +254,7 @@ public class ServerImpl implements Server {
 			message[0] = "[Error] Connection shutdown has failed.";
 		}
 		return message;
-	}
+	}*/
 	
 	private String[] cat(String filename, byte[] file) {
 		String message[] = {"Success"};
