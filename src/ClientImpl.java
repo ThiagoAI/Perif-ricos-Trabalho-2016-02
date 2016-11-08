@@ -24,12 +24,7 @@ public class ClientImpl {
 	static int timeout = 60000; // 60s
 	static Socket socket = null;
 	static ByteArrayOutputStream output;
-	static boolean greenlight; // is true when a connection is established
-	
-	public ClientImpl() {
-		output = new ByteArrayOutputStream();
-		greenlight = false;
-	}
+	static boolean greenlight = false; // is true when a connection is established
 
 	public static void main(String[] args) throws RemoteException {
 		try {
@@ -37,11 +32,12 @@ public class ClientImpl {
 			String message[] = null;
 			
 			for(;;) {
-				System.out.println("(Test & Temp) Enter command: ");
+				System.out.print("(Test & Temp) Enter command: ");
 				if(sd.detectInput() != null) {
 					if(greenlight) {
 						// the package is only built if there is an active connection
 						DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+						
 						out.write(buildOutput(sd));
 						// a single call of the write function is enough
 						// because a byte array containing every field is given
@@ -82,6 +78,8 @@ public class ClientImpl {
 	}
 	
 	private static byte[] buildOutput(StreamDetector sd) {
+		output = new ByteArrayOutputStream();
+		
 		try {
 			output.write(sd.getCommand());
 			if(sd.getArgument2() != null) {
@@ -92,7 +90,7 @@ public class ClientImpl {
 				output.write(sd.getArgument2());
 			} else {
 				// otherwise just the first argument
-				System.out.println("(Test) Argument2 is NULL.)");
+				System.out.println("(Test) Argument2 is NULL.");
 				output.write(sd.getSize1());
 				output.write(sd.getArgument1());
 			}
@@ -106,6 +104,7 @@ public class ClientImpl {
 			}
 		} catch(Exception e) {
 			System.out.println("It was not possible to proceed with the request.");
+			e.printStackTrace();
 		}
 		
 		return output.toByteArray();
