@@ -28,25 +28,21 @@ public class ServerImpl implements Server {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		System.out.println("Running Server...");
-		
-			// server keeps waiting for a command
-			ServerSocket server = new ServerSocket(1515);
-			server.accept();
-			greenlight = true;
-			System.out.println("Connected.");
-			for(;;) {
-				System.out.println("OY");
-			if(greenlight) {
-				// server only checks for an input if there's a connection
-				/*try {
-					DataInputStream in = new DataInputStream(socket.getInputStream());	
-					byte command = in.readByte();
-					System.out.println("Reading byte by byte in order to test.");
-					System.out.println("(Test) Command: " + command);
-					byte arg1size = in.readByte();
-					System.out.println("(Test) Arg 1 Size: " + arg1size);
-				} catch (Exception e) { e.printStackTrace();}*/
+		System.out.println("Initializing...");
+		ServerSocket server = new ServerSocket(1515);
+		Socket clientsocket = server.accept();
+		System.out.println("Connected.");
+		for(;;) {
+			// server only checks for an input if there's a connection
+			try {
+				DataInputStream in = new DataInputStream(clientsocket.getInputStream());
+				byte command = in.readByte();
+				System.out.println("Reading byte by byte in order to test.");
+				System.out.println("(Test) Command: " + command);
+				byte arg1size = in.readByte();
+				System.out.println("(Test) Arg 1 Size: " + arg1size);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}

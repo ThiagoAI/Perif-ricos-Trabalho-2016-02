@@ -37,7 +37,19 @@ public class ClientImpl {
 			String message[] = null;
 			
 			for(;;) {
+				System.out.println("(Test & Temp) Enter command: ");
 				if(sd.detectInput() != null) {
+					if(greenlight) {
+						// the package is only built if there is an active connection
+						DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+						out.write(buildOutput(sd));
+						// a single call of the write function is enough
+						// because a byte array containing every field is given
+						
+						//TODO change message for a DataInputStream
+						
+					} else { System.out.println("Not connected to a server yet..."); }
+					
 					if(sd.getCommand() == 0) {
 						// client has requested a connection
 						String address = new String(sd.getArgument1(), "ASCII");
@@ -47,20 +59,7 @@ public class ClientImpl {
 					// it doesn't make sense that the client is able to request commands
 					// if he's not connected to a server yet
 					
-					if(greenlight) {
-						// the package is only built if there is an active connection
-						DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-						out.write(buildOutput(sd));
-						// a single call of the write function is enough
-						// because a byte array containing every field is given
-						
-						//TODO change message for a DataInputStream
-						for(int iter = 0; iter < message.length; iter++) {
-							if(message[iter] == "FlagEmptyDirectory") {
-								// if empty directory then print nothing
-							} else { System.out.println(message[iter]); }
-						}
-					} else { System.out.println("Not connected to a server yet..."); }
+					
 				}
 			}
 		} catch (Exception e1) {
