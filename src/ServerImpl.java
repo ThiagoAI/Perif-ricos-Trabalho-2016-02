@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -26,19 +27,26 @@ public class ServerImpl implements Server {
 		greenlight = false;
 	}
 	
-	public static void main(String[] args) {
-		for(;;) {
+	public static void main(String[] args) throws IOException {
+		System.out.println("Running Server...");
+		
 			// server keeps waiting for a command
+			ServerSocket server = new ServerSocket(1515);
+			server.accept();
+			greenlight = true;
+			System.out.println("Connected.");
+			for(;;) {
+				System.out.println("OY");
 			if(greenlight) {
 				// server only checks for an input if there's a connection
-				try {
+				/*try {
 					DataInputStream in = new DataInputStream(socket.getInputStream());	
 					byte command = in.readByte();
 					System.out.println("Reading byte by byte in order to test.");
 					System.out.println("(Test) Command: " + command);
 					byte arg1size = in.readByte();
 					System.out.println("(Test) Arg 1 Size: " + arg1size);
-				} catch (Exception e) {}
+				} catch (Exception e) { e.printStackTrace();}*/
 			}
 		}
 	}
