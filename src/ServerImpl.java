@@ -18,7 +18,6 @@ import java.nio.file.StandardCopyOption;
 public class ServerImpl implements Server {
 	static int port = 1515;
 	static int timeout = 60000; // 60s
-	static boolean greenlight = false; // equals to true when a connection is established
 	static String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
 	static ServerSocket server = null;
 	static Socket client = null;
@@ -27,6 +26,7 @@ public class ServerImpl implements Server {
 	static byte arg1[] = null;
 	static byte arg2[] = null;
 	static byte file[] = null;
+	static byte filesize[] = null;
 	
 	public static void main(String[] args) {
 		try {
@@ -49,7 +49,7 @@ public class ServerImpl implements Server {
 				byte command = in.readByte();
 				execute(command);
 				
-				in.notify();
+				out.notify();
 				// awakes the client, indicating that there's a message for him
 				// to print
 			} catch (Exception e) {
@@ -64,7 +64,8 @@ public class ServerImpl implements Server {
 	
 	private static void unpack1() {
 		try {
-			for(int iter = 0; iter < in.readByte(); iter++) { arg1[iter] = in.readByte(); }
+			byte size1 = in.readByte();
+			for(int iter = 0; iter < size1; iter++) { arg1[iter] = in.readByte(); }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -72,8 +73,10 @@ public class ServerImpl implements Server {
 	
 	private static void unpack2() {
 		try {
-			for(int iter = 0; iter < in.readByte(); iter++) { arg1[iter] = in.readByte(); }
-			for(int iter = 0; iter < in.readByte(); iter++) { arg2[iter] = in.readByte(); }
+			byte size1 = in.readByte();
+			for(int iter = 0; iter < size1; iter++) { arg1[iter] = in.readByte(); }
+			byte size2 = in.readByte();
+			for(int iter = 0; iter < size2; iter++) { arg2[iter] = in.readByte(); }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -81,9 +84,11 @@ public class ServerImpl implements Server {
 	
 	private static void unpack3() {
 		try {
-			for(int iter = 0; iter < in.readByte(); iter++) { arg1[iter] = in.readByte(); }
-			for(int iter = 0; iter < in.readByte() + 1; iter++) { file[iter] = in.readByte(); }
-			// first byte is file size
+			byte size1 = in.readByte();
+			for(int iter = 0; iter < size1; iter++) { arg1[iter] = in.readByte(); }
+			byte filesizesize = in.readByte();
+			for(int iter = 0; iter < filesizesize; iter++) { filesize[iter] = in.readByte(); }
+			//TODO must get file as byte array
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -166,6 +171,12 @@ public class ServerImpl implements Server {
 	private static String[] ls() {
 		File dir = new File(currentPath);
         String children[] = dir.list();
+        
+        try {
+        	out.writeInt(children.length);
+        	for(int iter = 0; iter < children.length; iter++) { out.writeUTF(children[iter]); }
+        } catch (Exception e) { e.printStackTrace(); }
+        
         return children;
 	}
 	

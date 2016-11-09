@@ -3,6 +3,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 
 /**
@@ -24,9 +25,11 @@ public class ClientImpl {
 	static int timeout = 30000; // 30s
 	static Socket socket = null;
 	static boolean greenlight = false; // is true when a connection is established
+	static String address = null;
+	static String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
 	static ByteArrayOutputStream output = null;
-	static DataOutputStream out = null;
-	static DataInputStream in = null;
+	static DataOutputStream outs = null;
+	static DataInputStream ins = null;
 	static StreamDetector sd = null;
 
 	public static void main(String[] args) throws RemoteException {
@@ -34,31 +37,33 @@ public class ClientImpl {
 			sd = new StreamDetector();
 			
 			for(;;) {
-				System.out.print("(Temp) Enter command: ");
+				if(greenlight) { System.out.print("Online @ RemoteServer$ "); }
+				else { System.out.print("Offline @ " + currentPath + "$ "); }
+				
 				if(sd.detectInput() != null) {
 					if(greenlight) {
 						// the package is only built if there is an active connection
 						// otherwise we'll get an error regarding the socket
 						
-						out.write(buildOutput(sd));
+						outs.write(buildOutput(sd));
 						// a single call of the write function is enough
 						// because a byte array containing every field is given
 						
-						in.wait();
+						ins.wait();
 						// the client must wait for an answer
-						//TODO print message on screen
+						for(int iter = 0; iter < ins.readInt(); iter++) { System.out.println(ins.readUTF()); }
 					}
 					
 					if(sd.getCommand() == 0) {
 						// client has requested a connection
-						String address = new String(sd.getArgument1(), "ASCII");
+						address = new String(sd.getArgument1(), "ASCII");
 						if(greenlight == false) {
 							// only tries to create a connection if there's no connection yet
 							if(connect(address)) {
 								// connection successfully established
 								greenlight = true;
-								out = new DataOutputStream(socket.getOutputStream());
-								in = new DataInputStream(socket.getInputStream());
+								outs = new DataOutputStream(socket.getOutputStream());
+								ins = new DataInputStream(socket.getInputStream());
 							}
 						}
 					}
@@ -68,8 +73,8 @@ public class ClientImpl {
 						if(greenlight == true) {
 							// only tries to end it if there's a connection
 							greenlight = false;
-							out.close();
-							in.close();
+							outs.close();
+							ins.close();
 							socket.close();
 						}
 					}
