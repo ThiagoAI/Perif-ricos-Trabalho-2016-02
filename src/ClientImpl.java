@@ -32,7 +32,7 @@ public class ClientImpl {
 	static DataInputStream ins = null;
 	static StreamDetector sd = null;
 
-	public static void main(String[] args) throws RemoteException {
+	public static void main(String[] args) {
 		try {
 			sd = new StreamDetector();
 			
@@ -41,19 +41,6 @@ public class ClientImpl {
 				else { System.out.print("Offline @ " + currentPath + "$ "); }
 				
 				if(sd.detectInput() != null) {
-					if(greenlight) {
-						// the package is only built if there is an active connection
-						// otherwise we'll get an error regarding the socket
-						
-						outs.write(buildOutput(sd));
-						// a single call of the write function is enough
-						// because a byte array containing every field is given
-						
-						ins.wait();
-						// the client must wait for an answer
-						for(int iter = 0; iter < ins.readInt(); iter++) { System.out.println(ins.readUTF()); }
-					}
-					
 					if(sd.getCommand() == 0) {
 						// client has requested a connection
 						address = new String(sd.getArgument1(), "ASCII");
@@ -65,19 +52,30 @@ public class ClientImpl {
 								outs = new DataOutputStream(socket.getOutputStream());
 								ins = new DataInputStream(socket.getInputStream());
 							}
-						}
-					}
-					
-					if(sd.getCommand() == 8) {
-						// client desires to end the connection
-						if(greenlight == true) {
-							// only tries to end it if there's a connection
+						} else { System.out.println("You are already connected to a server."); }
+					} else if(greenlight) {
+						// client is connected and has inserted a command
+						if(sd.getCommand() == 8) {
+							// client desires to end the connection
 							greenlight = false;
 							outs.close();
 							ins.close();
 							socket.close();
+						} else {
+							// another command was received
+							// the package is only built if there is an active connection
+							// otherwise we'll get an error regarding the socket
+							
+							outs.write(buildOutput(sd));
+							// a single call of the write function is enough
+							// because a byte array containing every field is given
+							
+							ins.wait();
+							// the client must wait for an answer
+							for(int iter = 0; iter < ins.readInt(); iter++) { System.out.println(ins.readUTF()); }
+							// the message is received and printed as an UTF
 						}
-					}
+					} else { System.out.println("This command requires online connection."); }
 				}
 			}
 		} catch (Exception e) {
