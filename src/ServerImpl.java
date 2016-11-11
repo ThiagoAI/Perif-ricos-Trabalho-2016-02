@@ -1,3 +1,4 @@
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -36,7 +37,7 @@ public class ServerImpl implements Server {
 			// the server will stop and wait for a successful connection
 			// before proceeding
 			System.out.println("Connected.");
-			
+			System.out.println(getCurrentPath());
 			in = new DataInputStream(client.getInputStream());
 			out = new DataOutputStream(client.getOutputStream());
 		} catch (Exception e) {
@@ -49,7 +50,7 @@ public class ServerImpl implements Server {
 				byte command = in.readByte();
 				execute(command);
 				
-				out.notify();
+				//out.notify();
 				// awakes the client, indicating that there's a message for him
 				// to print
 			} catch (Exception e) {
@@ -58,7 +59,8 @@ public class ServerImpl implements Server {
 		}
 	}
 	
-	public String getCurrentPath() {
+	public static String getCurrentPath() {
+		System.out.println("Hitler did nothing wrong.");
 		return currentPath;
 	}
 	
@@ -167,12 +169,27 @@ public class ServerImpl implements Server {
 	}
 	*/
 	
+	//Transforma string no formato tamanho + string em bytes
+	private static byte[] transform_to_byte(String string){
+		byte[] temp = string.getBytes();
+		byte size = (byte) temp.length;
+		byte[] destination = new byte[size + 1];
+		destination[0] = size;
+		System.arraycopy(temp,0,destination,1,size);
+		return destination;
+	}
+	
 	//Childs tem todos os elementos no diretÃ³rio listados
 	private static String[] ls() {
 		File dir = new File(currentPath);
         String children[] = dir.list();
         
+        for(int i = 0;i < children.length;i++){
+        System.out.println(children[i]);
+        }
+        
         try {
+        	System.out.println(children.length);
         	out.writeInt(children.length);
         	for(int iter = 0; iter < children.length; iter++) { out.writeUTF(children[iter]); }
         } catch (Exception e) { e.printStackTrace(); }
