@@ -150,6 +150,7 @@ public class ServerImpl implements Server {
 			message = lcd(toAsc2(arg1));
 		}
 		
+		StreamDetector.eraseArguments();
 		return message;
 	}
 	
@@ -172,16 +173,23 @@ public class ServerImpl implements Server {
 	*/
 	
 	//Transforma string no formato tamanho + string em bytes
-	private static byte[] transform_to_byte(String string) throws UnsupportedEncodingException{
-		byte[] temp = string.getBytes();
-		byte size = (byte) temp.length;
-		byte[] destination = new byte[size + 1];
-		destination[0] = size;
-		System.arraycopy(temp,0,destination,1,size);
-		System.out.println("STUFF: " + destination);
-		String x = new String(temp,"ASCII");
-		System.out.println("LOL: " + x + "|" + size);
-		return destination;
+	private static byte[] transform_to_byte(String string) {
+		try {
+			byte[] temp = string.getBytes();
+			byte size = (byte) temp.length;
+			byte[] destination = new byte[size + 1];
+			destination[0] = size;
+			System.arraycopy(temp,0,destination,1,size);
+			return destination;
+		} catch (Exception e) {}
+		
+		return null;
+	}
+	
+	private static void howManyOutput(int size) {
+		byte[] array = new byte[1];
+		array[0] = (byte) size;
+		buildOutput(array);
 	}
 	
 	private static void buildOutput(byte[] array) {
@@ -203,15 +211,9 @@ public class ServerImpl implements Server {
 		File dir = new File(currentPath);
         String children[] = dir.list();
         
-        for(int i = 0;i < children.length;i++){
-        System.out.println(children[i]);
-        }
-        
         try {
-        	System.out.println(children.length);
-        	out.writeInt(children.length);
         	for(int iter = 0; iter < children.length; iter++) { buildOutput( transform_to_byte(children[iter]) ); }
-        	System.out.println("kek " + output.size());
+        	howManyOutput(children.length);
         	out.write(output.toByteArray());
         	output = null;
         } catch (Exception e) { e.printStackTrace(); }
@@ -241,6 +243,8 @@ public class ServerImpl implements Server {
 			}
 		}
 		
+		buildOutput( transform_to_byte(message[0]) );
+		
 		return message;
 	}
 	
@@ -258,6 +262,7 @@ public class ServerImpl implements Server {
 			message[0] = "[Error] Could not move the file or directory.";
 		}
 		
+		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
 	
@@ -271,7 +276,8 @@ public class ServerImpl implements Server {
 		else{
 			message[0] = "[Error] Could not create the folder.";
 		}
-		
+
+		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
 	
@@ -285,7 +291,8 @@ public class ServerImpl implements Server {
 		else{
 			message[0] = "[Error] Could not delete the folder.";
 		}
-		
+
+		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
 	
@@ -299,7 +306,8 @@ public class ServerImpl implements Server {
 		else{
 			message[0] = "[Error] Could not delete the file.";
 		}
-		
+
+		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
 	
@@ -314,7 +322,8 @@ public class ServerImpl implements Server {
 		catch(Exception e){
 			message[0] = "[Error] File could not be copied.";
 		}
-		
+
+		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
 	
@@ -349,7 +358,7 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
-	// É UM CD FEITO NA MÁQUINA DO CLIENTE AO INVÉS DO SERVIDOR
+	// cd local
 	private static String[] lcd(String directory) {
 		String message[] = {"Success"};
 		return message;

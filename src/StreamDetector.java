@@ -29,8 +29,8 @@ public class StreamDetector {
 	 */
 	private byte command;
 	private byte[] sizes;
-	private byte[] argument1;
-	private byte[] argument2;
+	private static byte[] argument1;
+	private static byte[] argument2;
 	private byte[] filesize;
 	private byte[] file;
 	
@@ -232,8 +232,6 @@ public class StreamDetector {
 		else{
 		    this.errorType = 0;
 		}
-		
-		this.eraseArguments();
 	
 	}
 	
@@ -266,9 +264,9 @@ public class StreamDetector {
 		this.errorType = -1;
 	}
 	
-	public void eraseArguments() {
-		this.argument1 = null;
-		this.argument2 = null;
+	public static void eraseArguments() {
+		argument1 = null;
+		argument2 = null;
 	}
 	
 	public boolean isOnlineCommand() {

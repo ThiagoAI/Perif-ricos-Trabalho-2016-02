@@ -72,11 +72,13 @@ public class ClientImpl {
 							
 							// ins.wait();
 							// the client must wait for an answer
-							for(int iter = 0; iter < ins.readInt(); iter++) {
-								byte array[] = null;
-								for(int ite = 0; ite < ins.readByte(); ite++) {
-									array[ite] = ins.readByte();
-								}
+							int num = ins.readInt();
+							for(int iter = 0; iter < num; iter++) {
+								int size = ins.readByte();
+								byte[] array = new byte[size];
+								
+								for(int ite = 0; ite < size; ite++) { array[ite] = ins.readByte(); }
+								
 								String string = new String(array, "ASCII");
 								System.out.println(string);
 							}
