@@ -245,6 +245,7 @@ public class ServerImpl implements Server {
 		
 		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
+    	output = null;
 		
 		return message;
 	}
@@ -265,6 +266,8 @@ public class ServerImpl implements Server {
 		
 		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
+    	output = null;
+    	
 		return message;
 	}
 	
@@ -281,6 +284,8 @@ public class ServerImpl implements Server {
 
 		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
+    	output = null;
+    	
 		return message;
 	}
 	
@@ -297,6 +302,8 @@ public class ServerImpl implements Server {
 
 		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
+    	output = null;
+    	
 		return message;
 	}
 	
@@ -313,6 +320,8 @@ public class ServerImpl implements Server {
 
 		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
+    	output = null;
+    	
 		return message;
 	}
 	
@@ -330,6 +339,8 @@ public class ServerImpl implements Server {
 
 		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
+    	output = null;
+    	
 		return message;
 	}
 	
