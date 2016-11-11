@@ -212,8 +212,8 @@ public class ServerImpl implements Server {
         String children[] = dir.list();
         
         try {
-        	for(int iter = 0; iter < children.length; iter++) { buildOutput( transform_to_byte(children[iter]) ); }
         	howManyOutput(children.length);
+        	for(int iter = 0; iter < children.length; iter++) { buildOutput( transform_to_byte(children[iter]) ); }
         	out.write(output.toByteArray());
         	output = null;
         } catch (Exception e) { e.printStackTrace(); }
@@ -243,6 +243,7 @@ public class ServerImpl implements Server {
 			}
 		}
 		
+		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
 		
 		return message;
@@ -262,6 +263,7 @@ public class ServerImpl implements Server {
 			message[0] = "[Error] Could not move the file or directory.";
 		}
 		
+		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
@@ -277,6 +279,7 @@ public class ServerImpl implements Server {
 			message[0] = "[Error] Could not create the folder.";
 		}
 
+		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
@@ -292,6 +295,7 @@ public class ServerImpl implements Server {
 			message[0] = "[Error] Could not delete the folder.";
 		}
 
+		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
@@ -307,6 +311,7 @@ public class ServerImpl implements Server {
 			message[0] = "[Error] Could not delete the file.";
 		}
 
+		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
@@ -323,6 +328,7 @@ public class ServerImpl implements Server {
 			message[0] = "[Error] File could not be copied.";
 		}
 
+		howManyOutput(1);
 		buildOutput( transform_to_byte(message[0]) );
 		return message;
 	}
