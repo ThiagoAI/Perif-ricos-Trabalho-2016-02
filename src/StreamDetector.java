@@ -232,6 +232,8 @@ public class StreamDetector {
 		else{
 		    this.errorType = 0;
 		}
+		
+		this.eraseArguments();
 	
 	}
 	

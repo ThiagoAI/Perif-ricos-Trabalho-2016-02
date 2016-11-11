@@ -70,9 +70,16 @@ public class ClientImpl {
 							// a single call of the write function is enough
 							// because a byte array containing every field is given
 							
-							ins.wait();
+							// ins.wait();
 							// the client must wait for an answer
-							for(int iter = 0; iter < ins.readInt(); iter++) { System.out.println(ins.readUTF()); }
+							for(int iter = 0; iter < ins.readInt(); iter++) {
+								byte array[] = null;
+								for(int ite = 0; ite < ins.readByte(); ite++) {
+									array[ite] = ins.readByte();
+								}
+								String string = new String(array, "ASCII");
+								System.out.println(string);
+							}
 							// the message is received and printed as an UTF
 						}
 					} else { System.out.println("This command requires online connection."); }
@@ -108,11 +115,13 @@ public class ClientImpl {
 				output.write(sd.getArgument1());
 				output.write(sd.getSize2());
 				output.write(sd.getArgument2());
-			} else {
+			} else if(sd.getArgument1() != null) {
 				// otherwise just the first argument
 				System.out.println("(Test) Argument2 is NULL.");
 				output.write(sd.getSize1());
 				output.write(sd.getArgument1());
+			} else {
+				System.out.println("(Test) Argument2 & Argument1 are NULL.");
 			}
 			
 			if(sd.isOnlineCommand()) {

@@ -24,6 +24,7 @@ public class ServerImpl implements Server {
 	static Socket client = null;
 	static DataOutputStream out = null;
 	static DataInputStream in = null;
+	static ByteArrayOutputStream output = null;
 	static byte arg1[] = null;
 	static byte arg2[] = null;
 	static byte file[] = null;
@@ -179,6 +180,20 @@ public class ServerImpl implements Server {
 		return destination;
 	}
 	
+	private static void buildOutput(byte[] array) {
+		if(output == null) {
+			System.out.println("(Test) output is null.");
+			output = new ByteArrayOutputStream();
+		}
+		
+		try {
+			output.write(array);
+		} catch(Exception e) {
+			System.out.println("Something went wrong.");
+			e.printStackTrace();
+		}
+	}
+	
 	//Childs tem todos os elementos no diretÃ³rio listados
 	private static String[] ls() {
 		File dir = new File(currentPath);
@@ -191,7 +206,9 @@ public class ServerImpl implements Server {
         try {
         	System.out.println(children.length);
         	out.writeInt(children.length);
-        	for(int iter = 0; iter < children.length; iter++) { out.writeUTF(children[iter]); }
+        	for(int iter = 0; iter < children.length; iter++) { buildOutput( transform_to_byte(children[iter]) ); }
+        	out.write(output.toByteArray());
+        	output = null;
         } catch (Exception e) { e.printStackTrace(); }
         
         return children;
