@@ -56,6 +56,7 @@ public class ServerImpl implements Server {
 				// to print
 			} catch (Exception e) {
 				e.printStackTrace();
+				System.exit(0);
 			}
 		}
 	}
@@ -171,12 +172,15 @@ public class ServerImpl implements Server {
 	*/
 	
 	//Transforma string no formato tamanho + string em bytes
-	private static byte[] transform_to_byte(String string){
+	private static byte[] transform_to_byte(String string) throws UnsupportedEncodingException{
 		byte[] temp = string.getBytes();
 		byte size = (byte) temp.length;
 		byte[] destination = new byte[size + 1];
 		destination[0] = size;
 		System.arraycopy(temp,0,destination,1,size);
+		System.out.println("STUFF: " + destination);
+		String x = new String(temp,"ASCII");
+		System.out.println("LOL: " + x + "|" + size);
 		return destination;
 	}
 	
@@ -207,6 +211,7 @@ public class ServerImpl implements Server {
         	System.out.println(children.length);
         	out.writeInt(children.length);
         	for(int iter = 0; iter < children.length; iter++) { buildOutput( transform_to_byte(children[iter]) ); }
+        	System.out.println("kek " + output.size());
         	out.write(output.toByteArray());
         	output = null;
         } catch (Exception e) { e.printStackTrace(); }
