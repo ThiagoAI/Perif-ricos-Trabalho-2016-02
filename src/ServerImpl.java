@@ -18,7 +18,7 @@ import java.nio.file.StandardCopyOption;
 
 public class ServerImpl implements Server {
 	static int port = 1515;
-	static int timeout = 60000; // 60s
+	static int timeout = 30000; // 30s
 	static String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
 	static ServerSocket server = null;
 	static Socket client = null;
@@ -32,37 +32,34 @@ public class ServerImpl implements Server {
 	
 	public static void main(String[] args) {
 		try {
-			System.out.println("Initializing...");
 			server = new ServerSocket(port);
+			System.out.println("Waiting for a connection request...");
 			client = server.accept();
+			
 			// the server will stop and wait for a successful connection
 			// before proceeding
-			System.out.println("Connected.");
-			System.out.println(getCurrentPath());
+			
 			in = new DataInputStream(client.getInputStream());
 			out = new DataOutputStream(client.getOutputStream());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		for(;;) {
-			// server only checks for an input if there's a connection
-			try {
+			
+			// the server immediately send its current path to the client
+			
+			buildOutput( toByteArrayAlt(getCurrentPath()) );
+			sendOutput();
+			
+			System.out.println("Connected.");
+			
+			for(;;) {
+				// server only checks for an input if there's a connection
 				byte command = in.readByte();
 				execute(command);
-				
-				//out.notify();
-				// awakes the client, indicating that there's a message for him
-				// to print
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(0);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
 	public static String getCurrentPath() {
-		System.out.println("Hitler did nothing wrong.");
 		return currentPath;
 	}
 	
@@ -103,55 +100,52 @@ public class ServerImpl implements Server {
 		return answer;
 	}
 	
-	public static String[] execute(byte command) throws UnsupportedEncodingException {
-		String message[] = null;
-		
+	public static void execute(byte command) throws UnsupportedEncodingException {
 		if(command == 1) {
-			message = ls();
+			ls();
 		}
 		else if(command == 2) {
 			unpack1();
-			message = cd(toAsc2(arg1));
+			cd(toAsc2(arg1));
 		}
 		else if(command == 3) {
 			unpack2();
-			message = mv(toAsc2(arg1), toAsc2(arg2));
+			mv(toAsc2(arg1), toAsc2(arg2));
 		}
 		else if(command == 4) {
 			unpack1();
-			message = mkdir(toAsc2(arg1));
+			mkdir(toAsc2(arg1));
 		}
 		else if(command == 5) {
 			unpack1();
-			message = rmdir(toAsc2(arg1));
+			rmdir(toAsc2(arg1));
 		}
 		else if(command == 6) {
 			unpack1();
-			message = rm(toAsc2(arg1));
+			rm(toAsc2(arg1));
 		}
 		else if(command == 7) {
 			unpack2();
-			message = cp(toAsc2(arg1), toAsc2(arg2));
+			cp(toAsc2(arg1), toAsc2(arg2));
 		}
 		else if(command == 9) {
 			unpack3();
-			message = cat(toAsc2(arg1), file);
+			cat(toAsc2(arg1), file);
 		}
 		else if(command == 10) {
 			unpack3();
-			message = upload(toAsc2(arg1), file);
+			upload(toAsc2(arg1), file);
 		}
 		else if(command == 11) {
 			unpack3();
-			message = download(toAsc2(arg1), file);
+			download(toAsc2(arg1), file);
 		}
 		else if(command == 12) {
 			unpack1();
-			message = lcd(toAsc2(arg1));
+			lcd(toAsc2(arg1));
 		}
 		
 		StreamDetector.eraseArguments();
-		return message;
 	}
 	
 	// obselete function
@@ -172,8 +166,8 @@ public class ServerImpl implements Server {
 	}
 	*/
 	
-	//Transforma string no formato tamanho + string em bytes
-	private static byte[] transform_to_byte(String string) {
+	// from string to a byte array where the first byte is the number of following bytes
+	private static byte[] toByteArrayAlt(String string) {
 		byte[] temp = string.getBytes();
 		byte size = (byte) temp.length;
 		byte[] destination = new byte[size + 1];
@@ -183,7 +177,16 @@ public class ServerImpl implements Server {
 		return destination;
 	}
 	
-	private static void howManyOutput(int size) {
+	private static void operationStatus(boolean status) {
+		byte[] array = new byte[1];
+		
+		if(status) { array[0] = (byte) 1; }
+		else { array[0] = (byte) 0; }
+		
+		buildOutput(array);
+	}
+	
+	private static void howManyOutputs(int size) {
 		byte[] array = new byte[1];
 		array[0] = (byte) size;
 		buildOutput(array);
@@ -191,162 +194,151 @@ public class ServerImpl implements Server {
 	
 	private static void buildOutput(byte[] array) {
 		if(output == null) {
-			System.out.println("(Test) output is null.");
 			output = new ByteArrayOutputStream();
 		}
 		
 		try {
-			System.out.println("EEEEEE" );
-			String x = new String(array,"ASCII");
-			System.out.println("oi: " + array[0] + "|" + x);
 			output.write(array);
-			System.out.println("lala: " + output.size());
 		} catch(Exception e) {
 			System.out.println("Something went wrong.");
 			e.printStackTrace();
 		}
 	}
 	
+	private static void sendOutput() {
+		try {
+			out.write(output.toByteArray());
+			output = null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	//Childs tem todos os elementos no diretÃ³rio listados
-	private static String[] ls() {
+	private static void ls() {
 		File dir = new File(currentPath);
         String children[] = dir.list();
         
         try {
-        	//howManyOutput(children.length);
-        	byte[] array = new byte[1];
-    		array[0] = (byte) children.length;
-    		buildOutput(array);
-        	for(int iter = 0; iter < children.length; iter++) { buildOutput( transform_to_byte(children[iter]) ); }
-        	System.out.println("obama: " + output.size());
-        	out.write(output.toByteArray());
-        	output = null;
-        } catch (Exception e) { e.printStackTrace(); }
+        	operationStatus(true);
+    		howManyOutputs(children.length);
+        	for(int iter = 0; iter < children.length; iter++) { buildOutput( toByteArrayAlt(children[iter]) ); }
+        } catch (Exception e) {
+        	operationStatus(false);
+        	buildOutput( toByteArrayAlt("ls : something went wrong.") );
+        }
         
-        return children;
+        sendOutput();
 	}
 	
 	//Atualizamos o currentPath
-	private static String[] cd(String directory) {
-		String message[] = {"FlagEmptyDirectory"};
-		
+	private static void cd(String directory) {
 		//Se for .. voltamos para o diretÃ³rio pai
 		if(directory.equals("..")) {
 			File dir = new File(currentPath);
 			String temp = dir.getParent();
+			
 			if(temp != null) {
 				currentPath = temp;
 			}
+			
+			operationStatus(true);
+			buildOutput( toByteArrayAlt(getCurrentPath()) );
 		} else {
 			File dir = new File(currentPath + "/" + directory);
+			
 			if(dir.isDirectory() == true) {
 				currentPath = currentPath + "/" + directory;
-			}
-			else {
-				//Comando estÃ¡ errado ver o que retornar aqui
-				message[0] = directory + ": no such file or directory.";
+				operationStatus(true);
+				buildOutput( toByteArrayAlt(getCurrentPath()) );
+			} else {
+				operationStatus(false);
+	        	buildOutput( toByteArrayAlt("cd : no such file or directory.") );
 			}
 		}
 		
-		howManyOutput(1);
-		buildOutput( transform_to_byte(message[0]) );
-    	output = null;
-		
-		return message;
+		sendOutput();
 	}
 	
 	//Tenta mover de source para target
 	//Assumo que ela dÃ¡ os dois absolute path...
 	//Se nÃ£o der tem que acrescentar currentPath
-	private static String[] mv(String source, String target){
-		String message[] = {"[Success] File has been successfully moved."};
+	private static void mv(String source, String target) {
 		try {
 			File src = new File(currentPath + "/" + source);
 			File tar = new File(target);
 			Files.move(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			
+			operationStatus(true);
 		}
 		catch(Exception e) {
-			message[0] = "[Error] Could not move the file or directory.";
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("mv : something went wrong.") );
 		}
 		
-		howManyOutput(1);
-		buildOutput( transform_to_byte(message[0]) );
-    	output = null;
-    	
-		return message;
+		sendOutput();
 	}
 	
 	//Criamos diretÃ³rio
-	private static String[] mkdir(String directory) {
-		String message[] = {"[Success] Folder created."};
+	private static void mkdir(String directory) {
 		File dir = new File(currentPath + "/" + directory);
-		if(dir.mkdir()){
-			//Nao fazer nada, teve sucesso
+		
+		if(dir.mkdir()) {
+			operationStatus(true);
 		}
-		else{
-			message[0] = "[Error] Could not create the folder.";
+		else {
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("mkdir : something went wrong.") );
 		}
-
-		howManyOutput(1);
-		buildOutput( transform_to_byte(message[0]) );
-    	output = null;
-    	
-		return message;
+		
+		sendOutput();
 	}
 	
 	//Destruimos o diretÃ³rio
-	private static String[] rmdir(String directory){
-		String message[] = {"[Success] Folder deleted."};
+	private static void rmdir(String directory) {
 		File dir = new File(currentPath + "/" + directory);
-		if(dir.delete()){
-			//Nao fazer nada, teve sucesso
+		
+		if(dir.delete()) {
+			operationStatus(true);
 		}
-		else{
-			message[0] = "[Error] Could not delete the folder.";
+		else {
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("rmdir : something went wrong.") );
 		}
 
-		howManyOutput(1);
-		buildOutput( transform_to_byte(message[0]) );
-    	output = null;
-    	
-		return message;
+		sendOutput();
 	}
 	
 	// delete files
-	private static String[] rm(String file) {
-		String message[] = {"[Success] File deleted."};
+	private static void rm(String file) {
 		File dir = new File(currentPath + "/" + file);
-		if(dir.delete()){
-			//Success.
+		
+		if(dir.delete()) {
+			operationStatus(true);
 		}
-		else{
-			message[0] = "[Error] Could not delete the file.";
+		else {
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("rm : something went wrong.") );
 		}
 
-		howManyOutput(1);
-		buildOutput( transform_to_byte(message[0]) );
-    	output = null;
-    	
-		return message;
+		sendOutput();
 	}
 	
 	// copy and paste files
-	private static String[] cp(String source, String target) {
-		String message[] = {"[Success] Copied and pasted."};
+	private static void cp(String source, String target) {
 		try {
 			File src = new File(currentPath + "/" + source);
 			File tar = new File(target);
 			Files.copy(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			
+			operationStatus(true);
 		}
-		catch(Exception e){
-			message[0] = "[Error] File could not be copied.";
+		catch(Exception e) {
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("mv : something went wrong.") );
 		}
 
-		howManyOutput(1);
-		buildOutput( transform_to_byte(message[0]) );
-    	output = null;
-    	
-		return message;
+		sendOutput();
 	}
 	
 	// needs to be remade

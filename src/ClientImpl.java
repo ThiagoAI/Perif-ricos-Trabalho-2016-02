@@ -27,6 +27,7 @@ public class ClientImpl {
 	static boolean greenlight = false; // is true when a connection is established
 	static String address = null;
 	static String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+	static String serverCurrentPath = null;
 	static ByteArrayOutputStream output = null;
 	static DataOutputStream outs = null;
 	static DataInputStream ins = null;
@@ -37,7 +38,7 @@ public class ClientImpl {
 			sd = new StreamDetector();
 			
 			for(;;) {
-				if(greenlight) { System.out.print("Online @ RemoteServer$ "); }
+				if(greenlight) { System.out.print("Online @ " + serverCurrentPath + "$ "); }
 				else { System.out.print("Offline @ " + currentPath + "$ "); }
 				
 				if(sd.detectInput() != null) {
@@ -51,6 +52,13 @@ public class ClientImpl {
 								greenlight = true;
 								outs = new DataOutputStream(socket.getOutputStream());
 								ins = new DataInputStream(socket.getInputStream());
+								
+								// the servers immediately writes its current path
+								
+								int size = ins.readByte();
+								byte[] array = new byte[size];
+								for(int iter = 0; iter < size; iter++) { array[iter] = ins.readByte(); }
+								serverCurrentPath = new String(array, "ASCII");
 							}
 						} else { System.out.println("You are already connected to a server."); }
 					} else if(greenlight) {
@@ -70,19 +78,37 @@ public class ClientImpl {
 							// a single call of the write function is enough
 							// because a byte array containing every field is given
 							
-							// ins.wait();
-							// the client must wait for an answer
-							int num = ins.readInt();
-							for(int iter = 0; iter < num; iter++) {
-								int size = ins.readByte();
-								byte[] array = new byte[size];
-								
-								for(int ite = 0; ite < size; ite++) { array[ite] = ins.readByte(); }
-								
+							// the first byte always refers to the operation status
+							if(ins.readByte() == 0) {
+								// zero indicates an error
+								int num = ins.readByte();
+								byte[] array = new byte[num];
+								for(int iter = 0; iter < num; iter++) { array[iter] = ins.readByte(); }
 								String string = new String(array, "ASCII");
 								System.out.println(string);
+							} else {
+								// otherwise, the operation was a success
+								if(sd.getCommand() == 1) {
+									// ls
+									System.out.println("Operation Stats : Success.");
+									int num = ins.readByte();
+									for(int iter = 0; iter < num; iter++) {
+										int size = ins.readByte();
+										byte[] array = new byte[size];
+										
+										for(int ite = 0; ite < size; ite++) { array[ite] = ins.readByte(); }
+										
+										String string = new String(array, "ASCII");
+										System.out.println(string);
+									}
+								} else if(sd.getCommand() == 2) {
+									// cd
+									int size = ins.readByte();
+									byte[] array = new byte[size];
+									for(int iter = 0; iter < size; iter++) { array[iter] = ins.readByte(); }
+									serverCurrentPath = new String(array, "ASCII");
+								}
 							}
-							// the message is received and printed as an UTF
 						}
 					} else { System.out.println("This command requires online connection."); }
 				}
