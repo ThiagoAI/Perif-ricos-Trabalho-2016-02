@@ -269,10 +269,15 @@ public class ServerImpl implements Server {
 	private static void mv(String source, String target) {
 		try {
 			File src = new File(currentPath + "/" + source);
-			File tar = new File(currentPath + "/" + target);
-			Files.move(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			// File tar = new File(currentPath + "/" + target);
+			// Files.move(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			
-			operationStatus(true);
+			if( src.renameTo(new File(currentPath + "/" + target + src.getName())) ){
+				operationStatus(true);
+			} else {
+				operationStatus(false);
+	        	buildOutput( toByteArrayAlt("mv : something went wrong.") );
+			}
 		}
 		catch(Exception e) {
 			operationStatus(false);
