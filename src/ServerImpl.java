@@ -333,14 +333,9 @@ public class ServerImpl implements Server {
 	private static void cp(String source, String target) {
 		try {
 			File src = new File(currentPath + "/" + source);
-			File tar = new File(currentPath + "/" + source);
+			File tar = new File(currentPath + "/" + target + "/" + source);
 			
-			if( tar.renameTo(new File(currentPath + "/" + target + "/" + src.getName())) ){
-				operationStatus(true);
-			} else {
-				operationStatus(false);
-	        	buildOutput( toByteArrayAlt("cp : something went wrong.") );
-			}
+			operationStatus(true);
 		}
 		catch(Exception e) {
 			operationStatus(false);
