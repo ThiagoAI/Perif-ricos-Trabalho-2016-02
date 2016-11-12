@@ -272,7 +272,7 @@ public class ServerImpl implements Server {
 			// File tar = new File(currentPath + "/" + target);
 			// Files.move(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			
-			if( src.renameTo(new File(currentPath + "/" + target + src.getName())) ){
+			if( src.renameTo(new File(currentPath + "/" + target + "/" + src.getName())) ){
 				operationStatus(true);
 			} else {
 				operationStatus(false);
