@@ -66,6 +66,7 @@ public class ServerImpl implements Server {
 	private static void unpack1() {
 		try {
 			byte size1 = in.readByte();
+			arg1 = new byte[size1];
 			for(int iter = 0; iter < size1; iter++) { arg1[iter] = in.readByte(); }
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -75,8 +76,10 @@ public class ServerImpl implements Server {
 	private static void unpack2() {
 		try {
 			byte size1 = in.readByte();
+			arg1 = new byte[size1];
 			for(int iter = 0; iter < size1; iter++) { arg1[iter] = in.readByte(); }
 			byte size2 = in.readByte();
+			arg2 = new byte[size2];
 			for(int iter = 0; iter < size2; iter++) { arg2[iter] = in.readByte(); }
 		} catch (Exception e) {
 			e.printStackTrace();
