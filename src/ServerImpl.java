@@ -2,7 +2,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -335,7 +339,20 @@ public class ServerImpl implements Server {
 			File src = new File(currentPath + "/" + source);
 			File tar = new File(currentPath + "/" + target + "/" + source);
 			
-			operationStatus(true);
+			InputStream inStream = new FileInputStream(src);
+	    	OutputStream outStream = new FileOutputStream(tar);
+	    	
+	    	byte[] buffer = new byte[1024];
+	    	int length;
+	    	
+	    	while( (length = inStream.read(buffer)) > 0) {
+	    		outStream.write(buffer, 0, length);
+	    	}
+	    	
+	    	inStream.close();
+	    	outStream.close();
+			
+	    	operationStatus(true);
 		}
 		catch(Exception e) {
 			operationStatus(false);
