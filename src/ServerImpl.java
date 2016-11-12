@@ -174,16 +174,13 @@ public class ServerImpl implements Server {
 	
 	//Transforma string no formato tamanho + string em bytes
 	private static byte[] transform_to_byte(String string) {
-		try {
-			byte[] temp = string.getBytes();
-			byte size = (byte) temp.length;
-			byte[] destination = new byte[size + 1];
-			destination[0] = size;
-			System.arraycopy(temp,0,destination,1,size);
-			return destination;
-		} catch (Exception e) {}
-		
-		return null;
+		byte[] temp = string.getBytes();
+		byte size = (byte) temp.length;
+		byte[] destination = new byte[size + 1];
+		destination[0] = size;
+		System.arraycopy(temp,0,destination,1,size);
+		System.out.println("KEK: " + string + "|" + size);
+		return destination;
 	}
 	
 	private static void howManyOutput(int size) {
@@ -199,7 +196,11 @@ public class ServerImpl implements Server {
 		}
 		
 		try {
+			System.out.println("EEEEEE" );
+			String x = new String(array,"ASCII");
+			System.out.println("oi: " + array[0] + "|" + x);
 			output.write(array);
+			System.out.println("lala: " + output.size());
 		} catch(Exception e) {
 			System.out.println("Something went wrong.");
 			e.printStackTrace();
@@ -212,8 +213,12 @@ public class ServerImpl implements Server {
         String children[] = dir.list();
         
         try {
-        	howManyOutput(children.length);
+        	//howManyOutput(children.length);
+        	byte[] array = new byte[1];
+    		array[0] = (byte) children.length;
+    		buildOutput(array);
         	for(int iter = 0; iter < children.length; iter++) { buildOutput( transform_to_byte(children[iter]) ); }
+        	System.out.println("obama: " + output.size());
         	out.write(output.toByteArray());
         	output = null;
         } catch (Exception e) { e.printStackTrace(); }
