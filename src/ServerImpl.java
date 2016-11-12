@@ -269,7 +269,7 @@ public class ServerImpl implements Server {
 	private static void mv(String source, String target) {
 		try {
 			File src = new File(currentPath + "/" + source);
-			File tar = new File(target);
+			File tar = new File(currentPath + "/" + target);
 			Files.move(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			
 			operationStatus(true);
@@ -331,7 +331,7 @@ public class ServerImpl implements Server {
 	private static void cp(String source, String target) {
 		try {
 			File src = new File(currentPath + "/" + source);
-			File tar = new File(target);
+			File tar = new File(currentPath + "/" + target);
 			Files.copy(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			
 			operationStatus(true);

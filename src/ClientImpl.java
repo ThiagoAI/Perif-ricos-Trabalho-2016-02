@@ -20,6 +20,13 @@ import java.rmi.RemoteException;
  * (Traffic Only) 6º Field: File. [File]
  */
 
+/*
+ * ls OK
+ * cd OK
+ * mkdir OK
+ * rmdir OK
+ */
+
 public class ClientImpl {
 	static int port = 1515;
 	static int timeout = 30000; // 30s
@@ -90,7 +97,6 @@ public class ClientImpl {
 								// otherwise, the operation was a success
 								if(sd.getCommand() == 1) {
 									// ls
-									System.out.println("Operation Stats : Success.");
 									int num = ins.readByte();
 									for(int iter = 0; iter < num; iter++) {
 										int size = ins.readByte();
@@ -107,7 +113,7 @@ public class ClientImpl {
 									byte[] array = new byte[size];
 									for(int iter = 0; iter < size; iter++) { array[iter] = ins.readByte(); }
 									serverCurrentPath = new String(array, "ASCII");
-								}
+								} else { System.out.println("Operation Stats : Success."); }
 							}
 						}
 					} else { System.out.println("This command requires online connection."); }
