@@ -25,6 +25,8 @@ import java.rmi.RemoteException;
  * cd OK
  * mkdir OK
  * rmdir OK
+ * mv OK
+ * rm OK
  */
 
 public class ClientImpl {

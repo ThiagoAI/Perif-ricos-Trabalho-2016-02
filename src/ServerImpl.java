@@ -8,7 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 /**
  * @author Luiz Nunes Junior, Thiago Anders Imhoff
@@ -269,8 +268,6 @@ public class ServerImpl implements Server {
 	private static void mv(String source, String target) {
 		try {
 			File src = new File(currentPath + "/" + source);
-			// File tar = new File(currentPath + "/" + target);
-			// Files.move(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			
 			if( src.renameTo(new File(currentPath + "/" + target + "/" + src.getName())) ){
 				operationStatus(true);
@@ -336,14 +333,18 @@ public class ServerImpl implements Server {
 	private static void cp(String source, String target) {
 		try {
 			File src = new File(currentPath + "/" + source);
-			File tar = new File(currentPath + "/" + target);
-			Files.copy(src.toPath(), tar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			File tar = new File(currentPath + "/" + source);
 			
-			operationStatus(true);
+			if( tar.renameTo(new File(currentPath + "/" + target + "/" + src.getName())) ){
+				operationStatus(true);
+			} else {
+				operationStatus(false);
+	        	buildOutput( toByteArrayAlt("cp : something went wrong.") );
+			}
 		}
 		catch(Exception e) {
 			operationStatus(false);
-        	buildOutput( toByteArrayAlt("mv : something went wrong.") );
+        	buildOutput( toByteArrayAlt("cp : something went wrong.") );
 		}
 
 		sendOutput();
