@@ -4,13 +4,12 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
+import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 
 /**
@@ -92,10 +91,18 @@ public class ServerImpl implements Server {
 	private static void unpack3() {
 		try {
 			byte size1 = in.readByte();
+			arg1 = new byte[size1];
 			for(int iter = 0; iter < size1; iter++) { arg1[iter] = in.readByte(); }
+			
 			byte filesizesize = in.readByte();
+			filesize = new byte[filesizesize];
 			for(int iter = 0; iter < filesizesize; iter++) { filesize[iter] = in.readByte(); }
-			//TODO must get file as byte array
+			
+			ByteBuffer wrapped = ByteBuffer.wrap(filesize);
+			int realfilesize = wrapped.getInt();
+			System.out.println("(Test) Real File Size: " + realfilesize);
+			file = new byte[realfilesize];
+			for(int iter = 0; iter < realfilesize; iter++) { file[iter] = in.readByte(); }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -336,6 +343,7 @@ public class ServerImpl implements Server {
 	// copy and paste files
 	private static void cp(String source, String target) {
 		try {
+			//isAbsolute
 			File src = new File(currentPath + "/" + source);
 			File tar = new File(currentPath + "/" + target + "/" + source);
 			
@@ -378,14 +386,19 @@ public class ServerImpl implements Server {
 		return message;
 	}
 	
-	private static String[] upload(String filename, byte[] file) {
-		String message[] = {"[Success] Upload complete."};
+	private static void upload(String filename, byte[] file) {
 		try {
-			Files.write(Paths.get(filename), file);
-		} catch (IOException e) {
-			message[0] = "[Error] Upload incomplete.";
+			FileOutputStream fos = new FileOutputStream(currentPath + "/" + filename);
+			fos.write(file);
+			fos.close();
+			
+			operationStatus(true);
+		} catch (Exception e) {
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("cp : something went wrong.") );
 		}
-		return message;
+		
+		sendOutput();
 	}
 	
 	private static String[] download(String filename, byte[] file) {
