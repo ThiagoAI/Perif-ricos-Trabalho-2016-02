@@ -335,11 +335,16 @@ public class ServerImpl implements Server {
 	private static void mkdir(String directory) {
 		File dir;
 		
-		if(isAbsoluteDirectory(directory)) {
+		File testing = new File(directory);
+		
+		if(testing.isAbsolute()) {
 			System.out.println("mkdir is absolute");
 			dir = new File(directory); 
 		}
-		else { dir = new File(currentPath + "/" + directory); }
+		else { 
+			System.out.println("mkdir is as ordinary as it gets");
+			dir = new File(currentPath + "/" + directory); 
+		}
 		
 		if(dir.mkdir()) {
 			operationStatus(true);
@@ -471,7 +476,9 @@ public class ServerImpl implements Server {
 	private static void upload(String filename, byte[] file) {
 		try {
 			FileOutputStream fos;
-			if(isAbsoluteFile(filename)) { fos = new FileOutputStream(filename); }
+			File testing = new File(filename);
+			
+			if(testing.isAbsolute()) { fos = new FileOutputStream(filename); }
 			else { fos = new FileOutputStream(currentPath + "/" + filename); }
 			
 			fos.write(file);
@@ -491,7 +498,9 @@ public class ServerImpl implements Server {
 			FileInputStream fis = null;
 
 			File src;
-	        if(isAbsoluteFile(filename)) { src = new File(filename); }
+			File testing = new File(filename);
+			
+	        if(testing.isAbsolute()) { src = new File(filename); }
 			else { src = new File(currentPath + "/" + filename); }
 	        
 	        byte[] files = String.valueOf(src.length()).getBytes();
