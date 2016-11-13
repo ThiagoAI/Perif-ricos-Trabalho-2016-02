@@ -235,6 +235,8 @@ public class ServerImpl implements Server {
 			return true;
 		}
 		
+		System.out.print("directory = " + verify.toString());
+		
 		return false;
 	}
 	
@@ -333,8 +335,10 @@ public class ServerImpl implements Server {
 	private static void mkdir(String directory) {
 		File dir;
 		
-		if(isAbsoluteDirectory(directory)) { dir = new File(directory); 
-		System.out.println("I AM SUPREME! I AM ABSOLUTE!");}
+		if(isAbsoluteDirectory(directory)) {
+			System.out.println("mkdir is absolute");
+			dir = new File(directory); 
+		}
 		else { dir = new File(currentPath + "/" + directory); }
 		
 		if(dir.mkdir()) {
