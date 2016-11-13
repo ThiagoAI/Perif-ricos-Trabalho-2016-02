@@ -379,21 +379,6 @@ public class ServerImpl implements Server {
 	
 	private static void cat(String filename) {
 		try {
-			FileOutputStream fos = new FileOutputStream(currentPath + "/" + filename);
-			fos.write(file);
-			fos.close();
-			
-			operationStatus(true);
-		} catch (Exception e) {
-			operationStatus(false);
-        	buildOutput( toByteArrayAlt("cat : something went wrong.") );
-		}
-		
-		sendOutput();
-	}
-	
-	private static void upload(String filename, byte[] file) {
-		try {
 			FileInputStream fis = null;
 
 	        File src = new File(currentPath + "/" + filename);
@@ -412,6 +397,21 @@ public class ServerImpl implements Server {
 		
         	operationStatus(true);
         	buildOutput( toByteArrayAlt(sscr) );
+		} catch (Exception e) {
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("cat : something went wrong.") );
+		}
+		
+		sendOutput();
+	}
+	
+	private static void upload(String filename, byte[] file) {
+		try {
+			FileOutputStream fos = new FileOutputStream(currentPath + "/" + filename);
+			fos.write(file);
+			fos.close();
+			
+			operationStatus(true);
 		} catch (Exception e) {
 			operationStatus(false);
         	buildOutput( toByteArrayAlt("upload : something went wrong.") );
