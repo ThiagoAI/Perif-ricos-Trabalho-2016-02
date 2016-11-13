@@ -106,7 +106,7 @@ public class StreamDetector {
 				
 				//Se for arquivo ainda temos de ver se ele existe
 				//e pegar o tamanho
-				if(this.command > 8 && this.command != 12 && this.command != 11){
+				if(this.command > 8 && this.command != 12 && this.command != 11 && this.command != 9){
 					//Tentamos ler o arquivo
 				
 					try{
