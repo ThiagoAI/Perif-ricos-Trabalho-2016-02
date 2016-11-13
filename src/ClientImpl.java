@@ -155,8 +155,9 @@ public class ClientImpl {
 										byte[] file = new byte[realfilesize];
 										for(int iter = 0; iter < realfilesize; iter++) { file[iter] = ins.readByte(); }
 										
+										File fname = new File(name);
+										FileOutputStream fos = new FileOutputStream(currentPath + "/" + fname.getName());
 										
-										FileOutputStream fos = new FileOutputStream(currentPath + "/" + name);
 										fos.write(file);
 										fos.close();
 									} else if(sd.getCommand() == 9) {
