@@ -331,7 +331,10 @@ public class ServerImpl implements Server {
 	
 	//Criamos diretÃ³rio
 	private static void mkdir(String directory) {
-		File dir = new File(currentPath + "/" + directory);
+		File dir;
+		
+		if(isAbsoluteDirectory(directory)) { dir = new File(directory); }
+		else { dir = new File(currentPath + "/" + directory); }
 		
 		if(dir.mkdir()) {
 			operationStatus(true);
@@ -346,7 +349,10 @@ public class ServerImpl implements Server {
 	
 	//Destruimos o diretÃ³rio
 	private static void rmdir(String directory) {
-		File dir = new File(currentPath + "/" + directory);
+		File dir;
+		
+		if(isAbsoluteDirectory(directory)) { dir = new File(directory); }
+		else { dir = new File(currentPath + "/" + directory); }
 		
 		for(File f: dir.listFiles()) { f.delete(); }
 		
@@ -363,7 +369,10 @@ public class ServerImpl implements Server {
 	
 	// delete files
 	private static void rm(String file) {
-		File dir = new File(currentPath + "/" + file);
+		File dir;
+		
+		if(isAbsoluteFile(file)) { dir = new File(file); }
+		else { dir = new File(currentPath + "/" + file); }
 		
 		if(dir.delete()) {
 			operationStatus(true);
@@ -379,9 +388,15 @@ public class ServerImpl implements Server {
 	// copy and paste files
 	private static void cp(String source, String target) {
 		try {
-			//isAbsolute
-			File src = new File(currentPath + "/" + source);
-			File tar = new File(currentPath + "/" + target + "/" + source);
+			
+			File src;
+			File tar;
+			
+			if(isAbsoluteFile(source)) { src = new File(source); }
+			else { src = new File(currentPath + "/" + source); }
+			
+			if(isAbsoluteDirectory(target)) { tar = new File(target + "/" + src.getName()); }
+			else { tar = new File(currentPath + "/" + target + "/" + src.getName()); }
 			
 			InputStream inStream = new FileInputStream(src);
 	    	OutputStream outStream = new FileOutputStream(tar);
@@ -421,7 +436,10 @@ public class ServerImpl implements Server {
 		try {
 			FileInputStream fis = null;
 
-	        File src = new File(currentPath + "/" + filename);
+	        File src;
+	        if(isAbsoluteFile(filename)) { src = new File(filename); }
+			else { src = new File(currentPath + "/" + filename); }
+	        
 	        byte[] files = String.valueOf(src.length()).getBytes();
 	        byte[] filess = new byte[1];
 	        filess[0] = (byte) files.length;
@@ -447,7 +465,10 @@ public class ServerImpl implements Server {
 	
 	private static void upload(String filename, byte[] file) {
 		try {
-			FileOutputStream fos = new FileOutputStream(currentPath + "/" + filename);
+			FileOutputStream fos;
+			if(isAbsoluteFile(filename)) { fos = new FileOutputStream(filename); }
+			else { fos = new FileOutputStream(currentPath + "/" + filename); }
+			
 			fos.write(file);
 			fos.close();
 			
@@ -464,7 +485,10 @@ public class ServerImpl implements Server {
 		try {
 			FileInputStream fis = null;
 
-	        File src = new File(currentPath + "/" + filename);
+			File src;
+	        if(isAbsoluteFile(filename)) { src = new File(filename); }
+			else { src = new File(currentPath + "/" + filename); }
+	        
 	        byte[] files = String.valueOf(src.length()).getBytes();
 	        byte[] filess = new byte[1];
 	        filess[0] = (byte) files.length;
