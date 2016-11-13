@@ -50,7 +50,10 @@ public class ClientImpl {
 			sd = new StreamDetector();
 			
 			for(;;) {
-				if(greenlight) { System.out.print("Online @ " + serverCurrentPath + "$ "); }
+				if(greenlight) {
+					if(sd.getCommand() == 12) { System.out.println(currentPath); }
+					System.out.print("Online @ " + serverCurrentPath + "$ ");
+				}
 				else { System.out.print("Offline @ " + currentPath + "$ "); }
 				
 				if(sd.detectInput() != null) {

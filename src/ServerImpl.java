@@ -228,6 +228,26 @@ public class ServerImpl implements Server {
 		}
 	}
 	
+	private static boolean isAbsoluteDirectory(String path) {
+		File verify = new File(path);
+		
+		if(verify.isDirectory() && verify.isAbsolute()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private static boolean isAbsoluteFile(String path) {
+		File verify = new File(path);
+		
+		if(verify.isFile() && verify.isAbsolute()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	//Childs tem todos os elementos no diretÃ³rio listados
 	private static void ls() {
 		File dir = new File(currentPath);
@@ -247,8 +267,11 @@ public class ServerImpl implements Server {
 	
 	//Atualizamos o currentPath
 	private static void cd(String directory) {
-		//Se for .. voltamos para o diretÃ³rio pai
-		if(directory.equals("..")) {
+		if(isAbsoluteDirectory(directory)) {
+			currentPath = directory;
+			operationStatus(true);
+			buildOutput( toByteArrayAlt(getCurrentPath()) );
+		} else if(directory.equals("..")) {
 			File dir = new File(currentPath);
 			String temp = dir.getParent();
 			
@@ -279,9 +302,19 @@ public class ServerImpl implements Server {
 	//Se nÃ£o der tem que acrescentar currentPath
 	private static void mv(String source, String target) {
 		try {
-			File src = new File(currentPath + "/" + source);
+			File src;
 			
-			if( src.renameTo(new File(currentPath + "/" + target + "/" + src.getName())) ){
+			if(isAbsoluteFile(source) || isAbsoluteDirectory(source)) {
+				src = new File(source);
+			} else { src = new File(currentPath + "/" + source); }
+			
+			String newdest;
+			
+			if(isAbsoluteDirectory(target)) {
+				newdest = new String(target + "/" + src.getName());
+			} else { newdest = new String(currentPath + "/" + target + "/" + src.getName()); }
+			
+			if( src.renameTo(new File(newdest)) ){
 				operationStatus(true);
 			} else {
 				operationStatus(false);
