@@ -133,6 +133,13 @@ public class ClientImpl {
 									FileOutputStream fos = new FileOutputStream(currentPath + "/" + name);
 									fos.write(file);
 									fos.close();
+								} else if(sd.getCommand() == 9) {
+									// cat
+									int size = ins.readByte();
+									byte[] array = new byte[size];
+									for(int iter = 0; iter < size; iter++) { array[iter] = ins.readByte(); }
+									String content = new String(array, "ASCII");
+									System.out.println(content);
 								} else { System.out.println("Operation Stats : Success."); }
 							}
 						}

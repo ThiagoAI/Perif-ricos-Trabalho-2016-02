@@ -138,8 +138,8 @@ public class ServerImpl implements Server {
 			cp(toAsc2(arg1), toAsc2(arg2));
 		}
 		else if(command == 9) {
-			unpack3();
-			cat(toAsc2(arg1), file);
+			unpack1();
+			cat(toAsc2(arg1));
 		}
 		else if(command == 10) {
 			unpack3();
@@ -377,12 +377,7 @@ public class ServerImpl implements Server {
 		return message;
 	}*/
 	
-	private static String[] cat(String filename, byte[] file) {
-		String message[] = {"Success"};
-		return message;
-	}
-	
-	private static void upload(String filename, byte[] file) {
+	private static void cat(String filename) {
 		try {
 			FileOutputStream fos = new FileOutputStream(currentPath + "/" + filename);
 			fos.write(file);
@@ -391,7 +386,35 @@ public class ServerImpl implements Server {
 			operationStatus(true);
 		} catch (Exception e) {
 			operationStatus(false);
-        	buildOutput( toByteArrayAlt("cp : something went wrong.") );
+        	buildOutput( toByteArrayAlt("cat : something went wrong.") );
+		}
+		
+		sendOutput();
+	}
+	
+	private static void upload(String filename, byte[] file) {
+		try {
+			FileInputStream fis = null;
+
+	        File src = new File(currentPath + "/" + filename);
+	        byte[] files = String.valueOf(src.length()).getBytes();
+	        byte[] filess = new byte[1];
+	        filess[0] = (byte) files.length;
+	        
+	        byte[] bsrc = new byte[(int) src.length()];
+	        
+            //convert file into array of bytes
+        	fis = new FileInputStream(src);
+        	fis.read(bsrc);
+        	fis.close();
+        	
+        	String sscr = new String(bsrc, "ASCII");
+		
+        	operationStatus(true);
+        	buildOutput( toByteArrayAlt(sscr) );
+		} catch (Exception e) {
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("upload : something went wrong.") );
 		}
 		
 		sendOutput();
