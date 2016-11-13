@@ -1,6 +1,7 @@
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,10 +13,10 @@ import java.net.Socket;
 import java.nio.file.Paths;
 
 /**
- * @author Luiz Nunes Junior, Thiago Anders Imhoff
+ * @author Luiz Nunes Junior, Thiago Anders Imhoff 
+ * @category Trabalho 1 de Interfaces e Periféricos
+ * @since October 10th, 2016
  */
-
-//TODO maybe it's not working properly given the absolute path
 
 public class ServerImpl implements Server {
 	static int port = 1515;
@@ -32,6 +33,7 @@ public class ServerImpl implements Server {
 	static byte filesize[] = null;
 	
 	public static void main(String[] args) {
+		goback:
 		try {
 			server = new ServerSocket(port);
 			System.out.println("Waiting for a connection request...");
@@ -54,12 +56,15 @@ public class ServerImpl implements Server {
 				// server only checks for an input if there's a connection
 				byte command = in.readByte();
 				if(command == 8) {
+					// close
 					out.close();
 					in.close();
 					client.close();
 					server.close();
 				} else { execute(command); }
 			}
+		} catch (EOFException eof) {
+			break goback;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -154,31 +159,9 @@ public class ServerImpl implements Server {
 			unpack1();
 			download(toAsc2(arg1));
 		}
-		else if(command == 12) {
-			unpack1();
-			lcd(toAsc2(arg1));
-		}
 		
 		StreamDetector.eraseArguments();
 	}
-	
-	// obselete function
-	// this fuctionality is done by the main
-	/*
-	private String[] open(String address) {
-		String message[] = {"Connection has been established."};
-		
-		try {
-			System.out.println("Connecting with " + address + "...");
-			socket = new Socket(InetAddress.getByName(address), port);
-			socket.setSoTimeout(timeout);
-		} catch (Exception e) {
-			message[0] = "Error while connecting to " + address + " : " + port;
-		}
-		
-		return message;
-	}
-	*/
 	
 	// from string to a byte array where the first byte is the number of following bytes
 	private static byte[] toByteArrayAlt(String string) {
@@ -187,7 +170,7 @@ public class ServerImpl implements Server {
 		byte[] destination = new byte[size + 1];
 		destination[0] = size;
 		System.arraycopy(temp,0,destination,1,size);
-		System.out.println("KEK: " + string + "|" + size);
+		System.out.println("ack: " + string + "\n\tsize: " + size);
 		return destination;
 	}
 	
@@ -496,13 +479,11 @@ public class ServerImpl implements Server {
 			File src;
 			File testing = new File(filename);
 			
-	        if(testing.isAbsolute()) { 
-	        	System.out.println("download is unbreakable");
+	        if(testing.isAbsolute()) {
 	        	src = new File(filename);
 	        	System.out.println(src.toString());
 	        }
 			else { 
-				System.out.println("download is a piece of shit");
 				src = new File(currentPath + "/" + filename);
 				System.out.println(src.toString());
 			}
@@ -528,11 +509,5 @@ public class ServerImpl implements Server {
 		}
 		
 		sendOutput();
-	}
-	
-	// cd local
-	private static String[] lcd(String directory) {
-		String message[] = {"Success"};
-		return message;
 	}
 }

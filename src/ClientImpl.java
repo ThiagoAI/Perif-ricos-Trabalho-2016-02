@@ -12,24 +12,6 @@ import java.rmi.RemoteException;
  * @author Luiz Nunes Junior, Thiago Anders Imhoff 
  * @category Trabalho 1 de Interfaces e Periféricos
  * @since October 10th, 2016
- * 
- * Protocol StreamDetector by Kumamon, Tinhoso, FettBär, TotallyNotAllan
- * 1º Field: Which command? [Byte]
- * 2º Field: Argument size. [Byte]
- * 3º Field: Argument. [0 ~ 255 bytes]
- * (Traffic Only) 4º Field: File size size. [Byte]
- * (Traffic Only) 5º Field: File size. [0 ~ 255 bytes]
- * (Traffic Only) 6º Field: File. [File]
- */
-
-/*
- * ls OK
- * cd OK
- * mkdir OK
- * rmdir OK
- * mv OK
- * rm OK
- * cp OK
  */
 
 public class ClientImpl {
