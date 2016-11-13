@@ -53,7 +53,12 @@ public class ServerImpl implements Server {
 			for(;;) {
 				// server only checks for an input if there's a connection
 				byte command = in.readByte();
-				execute(command);
+				if(command == 8) {
+					out.close();
+					in.close();
+					client.close();
+					server.close();
+				} else { execute(command); }
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -309,6 +314,8 @@ public class ServerImpl implements Server {
 	//Destruimos o diretÃ³rio
 	private static void rmdir(String directory) {
 		File dir = new File(currentPath + "/" + directory);
+		
+		for(File f: dir.listFiles()) { f.delete(); }
 		
 		if(dir.delete()) {
 			operationStatus(true);
