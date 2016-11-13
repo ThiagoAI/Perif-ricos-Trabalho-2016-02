@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -92,15 +93,15 @@ public class ServerImpl implements Server {
 		try {
 			byte size1 = in.readByte();
 			arg1 = new byte[size1];
-			for(int iter = 0; iter < size1; iter++) { arg1[iter] = in.readByte(); }
-			
+			for(int iter = 0; iter < size1; iter++) { arg1[iter] = in.readByte(); }	
 			byte filesizesize = in.readByte();
 			filesize = new byte[filesizesize];
 			for(int iter = 0; iter < filesizesize; iter++) { filesize[iter] = in.readByte(); }
-			
-			ByteBuffer wrapped = ByteBuffer.wrap(filesize);
-			int realfilesize = wrapped.getInt();
-			System.out.println("(Test) Real File Size: " + realfilesize);
+			//System.out.println("eeee " + filesize[0] + " | " + filesize[1]);
+			//System.out.println("oi " + filesizesize + " | " + wrapped.position() + " | " + wrapped.limit());
+			String temp = new String(filesize,"ASCII");
+			int realfilesize = Integer.parseInt(temp);
+			//System.out.println("(Test) Real File Size: " + realfilesize);
 			file = new byte[realfilesize];
 			for(int iter = 0; iter < realfilesize; iter++) { file[iter] = in.readByte(); }
 		} catch (Exception e) {
