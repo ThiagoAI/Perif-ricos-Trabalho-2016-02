@@ -333,7 +333,8 @@ public class ServerImpl implements Server {
 	private static void mkdir(String directory) {
 		File dir;
 		
-		if(isAbsoluteDirectory(directory)) { dir = new File(directory); }
+		if(isAbsoluteDirectory(directory)) { dir = new File(directory); 
+		System.out.println("I AM SUPREME! I AM ABSOLUTE!");}
 		else { dir = new File(currentPath + "/" + directory); }
 		
 		if(dir.mkdir()) {
