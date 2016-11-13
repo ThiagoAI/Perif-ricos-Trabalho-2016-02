@@ -7,10 +7,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 
 /**
@@ -151,8 +149,8 @@ public class ServerImpl implements Server {
 			upload(toAsc2(arg1), file);
 		}
 		else if(command == 11) {
-			unpack3();
-			download(toAsc2(arg1), file);
+			unpack1();
+			download(toAsc2(arg1));
 		}
 		else if(command == 12) {
 			unpack1();
@@ -402,9 +400,27 @@ public class ServerImpl implements Server {
 		sendOutput();
 	}
 	
-	private static String[] download(String filename, byte[] file) {
-		String message[] = {"Success"};
-		return message;
+	private static void download(String filename) {
+		try {
+			FileInputStream fis = null;
+
+	        File src = new File(currentPath + "/" + filename);
+
+	        byte[] bsrc = new byte[(int) src.length()];
+
+            //convert file into array of bytes
+        	fis = new FileInputStream(src);
+        	fis.read(bsrc);
+        	fis.close();
+		
+        	operationStatus(true);
+        	buildOutput(bsrc);
+		} catch (Exception e) {
+			operationStatus(false);
+        	buildOutput( toByteArrayAlt("cp : something went wrong.") );
+		}
+		
+		sendOutput();
 	}
 	
 	// cd local

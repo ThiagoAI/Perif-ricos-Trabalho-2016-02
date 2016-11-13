@@ -1,6 +1,7 @@
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.Paths;
@@ -116,6 +117,15 @@ public class ClientImpl {
 									byte[] array = new byte[size];
 									for(int iter = 0; iter < size; iter++) { array[iter] = ins.readByte(); }
 									serverCurrentPath = new String(array, "ASCII");
+								} else if(sd.getCommand() == 11) {
+									// download
+									int size = ins.readByte();
+									byte[] array = new byte[size];
+									for(int iter = 0; iter < size; iter++) { array[iter] = ins.readByte(); }
+									String name = new String(sd.getArgument1(), "ASCII");
+									FileOutputStream fos = new FileOutputStream(currentPath + "/" + name);
+									fos.write(array);
+									fos.close();
 								} else { System.out.println("Operation Stats : Success."); }
 							}
 						}
@@ -164,9 +174,15 @@ public class ClientImpl {
 			if(sd.isOnlineCommand()) {
 				// in case of cat, upload or download, we must write the file as well
 				System.out.println("(Test) Command requires online connection.");
-				output.write(sd.getFilesizeSize());
-				output.write(sd.getFilesize());
-				output.write(sd.getFile());
+				if(sd.getCommand() == 10) {
+					System.out.println("(Test) Upload files.");
+					output.write(sd.getFilesizeSize());
+					output.write(sd.getFilesize());
+					output.write(sd.getFile());
+				} else {
+					output.write(sd.getSize1());
+					output.write(sd.getArgument1());
+				}
 			}
 		} catch(Exception e) {
 			System.out.println("It was not possible to proceed with the request.");
