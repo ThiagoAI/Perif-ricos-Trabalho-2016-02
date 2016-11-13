@@ -119,12 +119,19 @@ public class ClientImpl {
 									serverCurrentPath = new String(array, "ASCII");
 								} else if(sd.getCommand() == 11) {
 									// download
-									int size = ins.readByte();
-									byte[] array = new byte[size];
-									for(int iter = 0; iter < size; iter++) { array[iter] = ins.readByte(); }
 									String name = new String(sd.getArgument1(), "ASCII");
+									
+									byte filesizesize = ins.readByte();
+									byte[] filesize = new byte[filesizesize];
+									for(int iter = 0; iter < filesizesize; iter++) { filesize[iter] = ins.readByte(); }
+									String temp = new String(filesize,"ASCII");
+									int realfilesize = Integer.parseInt(temp);
+									byte[] file = new byte[realfilesize];
+									for(int iter = 0; iter < realfilesize; iter++) { file[iter] = ins.readByte(); }
+									
+									
 									FileOutputStream fos = new FileOutputStream(currentPath + "/" + name);
-									fos.write(array);
+									fos.write(file);
 									fos.close();
 								} else { System.out.println("Operation Stats : Success."); }
 							}

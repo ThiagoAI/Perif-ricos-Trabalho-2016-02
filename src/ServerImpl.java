@@ -95,11 +95,8 @@ public class ServerImpl implements Server {
 			byte filesizesize = in.readByte();
 			filesize = new byte[filesizesize];
 			for(int iter = 0; iter < filesizesize; iter++) { filesize[iter] = in.readByte(); }
-			//System.out.println("eeee " + filesize[0] + " | " + filesize[1]);
-			//System.out.println("oi " + filesizesize + " | " + wrapped.position() + " | " + wrapped.limit());
 			String temp = new String(filesize,"ASCII");
 			int realfilesize = Integer.parseInt(temp);
-			//System.out.println("(Test) Real File Size: " + realfilesize);
 			file = new byte[realfilesize];
 			for(int iter = 0; iter < realfilesize; iter++) { file[iter] = in.readByte(); }
 		} catch (Exception e) {
@@ -405,19 +402,24 @@ public class ServerImpl implements Server {
 			FileInputStream fis = null;
 
 	        File src = new File(currentPath + "/" + filename);
-
+	        byte[] files = String.valueOf(src.length()).getBytes();
+	        byte[] filess = new byte[1];
+	        filess[0] = (byte) files.length;
+	        
 	        byte[] bsrc = new byte[(int) src.length()];
-
+	        
             //convert file into array of bytes
         	fis = new FileInputStream(src);
         	fis.read(bsrc);
         	fis.close();
 		
         	operationStatus(true);
+        	buildOutput(filess);
+        	buildOutput(files);
         	buildOutput(bsrc);
 		} catch (Exception e) {
 			operationStatus(false);
-        	buildOutput( toByteArrayAlt("cp : something went wrong.") );
+        	buildOutput( toByteArrayAlt("download : something went wrong.") );
 		}
 		
 		sendOutput();
