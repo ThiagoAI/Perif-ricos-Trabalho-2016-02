@@ -235,8 +235,6 @@ public class ServerImpl implements Server {
 			return true;
 		}
 		
-		System.out.print("directory = " + verify.toString());
-		
 		return false;
 	}
 	
@@ -338,11 +336,9 @@ public class ServerImpl implements Server {
 		File testing = new File(directory);
 		
 		if(testing.isAbsolute()) {
-			System.out.println("mkdir is absolute");
 			dir = new File(directory); 
 		}
 		else { 
-			System.out.println("mkdir is as ordinary as it gets");
 			dir = new File(currentPath + "/" + directory); 
 		}
 		
@@ -500,8 +496,16 @@ public class ServerImpl implements Server {
 			File src;
 			File testing = new File(filename);
 			
-	        if(testing.isAbsolute()) { src = new File(filename); }
-			else { src = new File(currentPath + "/" + filename); }
+	        if(testing.isAbsolute()) { 
+	        	System.out.println("download is unbreakable");
+	        	src = new File(filename);
+	        	System.out.println(src.toString());
+	        }
+			else { 
+				System.out.println("download is a piece of shit");
+				src = new File(currentPath + "/" + filename);
+				System.out.println(src.toString());
+			}
 	        
 	        byte[] files = String.valueOf(src.length()).getBytes();
 	        byte[] filess = new byte[1];
