@@ -188,18 +188,18 @@ public class ClientImpl {
 				output.write(sd.getArgument2());
 			} else if(sd.getArgument1() != null) {
 				// otherwise just the first argument
-				System.out.println("(Test) Argument2 is NULL.");
+				//System.out.println("(Test) Argument2 is NULL.");
 				output.write(sd.getSize1());
 				output.write(sd.getArgument1());
 			} else {
-				System.out.println("(Test) Argument2 & Argument1 are NULL.");
+				//System.out.println("(Test) Argument2 & Argument1 are NULL.");
 			}
 			
 			if(sd.isOnlineCommand()) {
 				// in case of cat, upload or download, we must write the file as well
-				System.out.println("(Test) Command requires online connection.");
+				//System.out.println("(Test) Command requires online connection.");
 				if(sd.getCommand() == 10) {
-					System.out.println("(Test) Upload files.");
+					//System.out.println("(Test) Upload files.");
 					output.write(sd.getFilesizeSize());
 					output.write(sd.getFilesize());
 					output.write(sd.getFile());

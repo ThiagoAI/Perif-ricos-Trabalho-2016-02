@@ -33,7 +33,7 @@ public class ServerImpl implements Server {
 	static byte filesize[] = null;
 	
 	public static void main(String[] args) {
-		goback:
+		for(;;){
 		try {
 			server = new ServerSocket(port);
 			System.out.println("Waiting for a connection request...");
@@ -63,10 +63,21 @@ public class ServerImpl implements Server {
 					server.close();
 				} else { execute(command); }
 			}
-		} catch (EOFException eof) {
-			break goback;
 		} catch (Exception e) {
-			e.printStackTrace();
+			try{
+			server.close();
+			}
+			catch(Exception ee){
+			  ee.printStackTrace();
+			  System.exit(1);    	
+			}
+			System.out.println("Cliente deu close. Reabrindo conexão...");
+		}
+		//} catch (Exception e) {
+			//System.out.println("PROBLEMA INESPERADO: ");
+			//e.printStackTrace();
+			//System.exit(1);
+		//}
 		}
 	}
 	
@@ -170,7 +181,7 @@ public class ServerImpl implements Server {
 		byte[] destination = new byte[size + 1];
 		destination[0] = size;
 		System.arraycopy(temp,0,destination,1,size);
-		System.out.println("ack: " + string + "\n\tsize: " + size);
+		//System.out.println("ack: " + string + "\n\tsize: " + size);
 		return destination;
 	}
 	
@@ -336,6 +347,21 @@ public class ServerImpl implements Server {
 		sendOutput();
 	}
 	
+	//Para deletar pasta dentro de pasta
+	private static void rmdir_aux(String directory) {
+		File dir;
+		
+		if(isAbsoluteDirectory(directory)) { dir = new File(directory); }
+		else { dir = new File(currentPath + "/" + directory); }
+		
+		for(File f: dir.listFiles()) {
+			if(f.isDirectory()) rmdir_aux(dir + "/" + f.getName());
+			else f.delete(); 
+		}
+		
+		dir.delete();
+	}
+	
 	//Destruimos o diretÃ³rio
 	private static void rmdir(String directory) {
 		File dir;
@@ -343,7 +369,10 @@ public class ServerImpl implements Server {
 		if(isAbsoluteDirectory(directory)) { dir = new File(directory); }
 		else { dir = new File(currentPath + "/" + directory); }
 		
-		for(File f: dir.listFiles()) { f.delete(); }
+		for(File f: dir.listFiles()) {
+			if(f.isDirectory()) rmdir_aux(dir + "/" + f.getName());
+			else f.delete(); 
+		}
 		
 		if(dir.delete()) {
 			operationStatus(true);
@@ -481,11 +510,11 @@ public class ServerImpl implements Server {
 			
 	        if(testing.isAbsolute()) {
 	        	src = new File(filename);
-	        	System.out.println(src.toString());
+	        	//System.out.println(src.toString());
 	        }
 			else { 
 				src = new File(currentPath + "/" + filename);
-				System.out.println(src.toString());
+				//System.out.println(src.toString());
 			}
 	        
 	        byte[] files = String.valueOf(src.length()).getBytes();
