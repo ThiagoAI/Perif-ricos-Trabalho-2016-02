@@ -112,7 +112,9 @@ public class StreamDetector {
 					try{
 						//Abrimos o arquivo
 						File file = new File(arguments[1]);
-						
+						argument1 = file.getName().getBytes();
+						sizes[0] = (byte) argument1.length;
+							
 						//Pegamos o tamanho do arquivo
 						long filesize = file.length();
 						temp = String.valueOf(filesize);

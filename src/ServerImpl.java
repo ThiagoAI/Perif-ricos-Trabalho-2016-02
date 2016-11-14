@@ -55,6 +55,7 @@ public class ServerImpl implements Server {
 			for(;;) {
 				// server only checks for an input if there's a connection
 				byte command = in.readByte();
+				System.out.println(command + " e o comando.");
 				if(command == 8) {
 					// close
 					out.close();
@@ -481,7 +482,7 @@ public class ServerImpl implements Server {
 		sendOutput();
 	}
 	
-	private static void upload(String filename, byte[] file) {
+	private static void upload(String filename, byte[] filex) {
 		try {
 			FileOutputStream fos;
 			File testing = new File(filename);

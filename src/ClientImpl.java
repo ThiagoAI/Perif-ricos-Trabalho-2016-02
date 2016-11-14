@@ -179,6 +179,7 @@ public class ClientImpl {
 		output = new ByteArrayOutputStream();
 		
 		try {
+			System.out.println("Ola");
 			output.write(sd.getCommand());
 			if(sd.getArgument2() != null) {
 				// if there is a second argument then write it
@@ -203,10 +204,8 @@ public class ClientImpl {
 					output.write(sd.getFilesizeSize());
 					output.write(sd.getFilesize());
 					output.write(sd.getFile());
-				} else {
-					output.write(sd.getSize1());
-					output.write(sd.getArgument1());
-				}
+				}  
+				
 			}
 		} catch(Exception e) {
 			System.out.println("It was not possible to proceed with the request.");
